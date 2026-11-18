@@ -833,6 +833,7 @@
   let appState = {
     timeOffsetDays: 0,
     targetRetention: 0.90,
+    dailyNewLimit: 7,
     includePage3: true,
     streak: 0,
     bestStreak: 0,
@@ -962,14 +963,118 @@
     return DEFINITIONS.filter(d => appState.includePage3 || !d.id.match(/^(44|45|46)$/));
   }
 
-  function getDueDefinitions() {
+  function isSameCalendarDay(tsA, tsB) {
+    if (!tsA || !tsB) return false;
+    const dA = new Date(tsA);
+    const dB = new Date(tsB);
+    return dA.getFullYear() === dB.getFullYear() &&
+           dA.getMonth() === dB.getMonth() &&
+           dA.getDate() === dB.getDate();
+  }
+
+  // Devuelve las tarjetas ya estudiadas que hoy han caído al umbral de olvido (R <= targetRetention) o quedaron en Again
+  function getDueReviewsOnly() {
     const nowMs = getNowMs();
     return getActiveDefinitions().filter(d => {
       const c = appState.cards[d.id];
-      if (!c || c.state === 'new') return true;
+      if (!c || c.state === 'new' || !c.lastReview) return false;
       const r = getRetrievability(c, nowMs);
-      return r <= appState.targetRetention + 0.005 || (c.due && c.due <= nowMs);
+      return c.lastGrade === 1 || r <= appState.targetRetention + 0.005 || (c.due && c.due <= nowMs);
     });
+  }
+
+  // Devuelve todas las tarjetas que aún no se han estrenado nunca
+  function getAllUnseenNewDefinitions() {
+    return getActiveDefinitions().filter(d => {
+      const c = appState.cards[d.id];
+      return !c || c.state === 'new' || !c.lastReview;
+    });
+  }
+
+  // Cuántas tarjetas se han contestado hoy
+  function getStudiedTodayCount() {
+    const nowMs = getNowMs();
+    return getActiveDefinitions().filter(d => {
+      const c = appState.cards[d.id];
+      return c && c.lastReview && isSameCalendarDay(c.lastReview, nowMs);
+    }).length;
+  }
+
+  // Dosis diaria inteligente: Repasos vencidos hoy + Cupo restante de nuevas de hoy (7 por defecto)
+  function getDueDefinitions() {
+    const dueReviews = getDueReviewsOnly();
+    const unseenNew = getAllUnseenNewDefinitions();
+    const studiedToday = getStudiedTodayCount();
+    const limit = appState.dailyNewLimit || 7;
+    const remainingNewQuotaToday = Math.max(0, limit - studiedToday);
+    const newForToday = unseenNew.slice(0, remainingNewQuotaToday);
+    return [...dueReviews, ...newForToday];
+  }
+
+  // Calcula la recomendación exacta para la Tarjeta Única de Anki según tus tarjetas reales
+  function getAnkiSingleCardAdvice() {
+    const nowMs = getNowMs();
+    const active = getActiveDefinitions();
+    const dueReviews = getDueReviewsOnly();
+    const unseenNew = getAllUnseenNewDefinitions();
+    const studiedToday = getStudiedTodayCount();
+    const dailyDoseLeft = getDueDefinitions().length;
+
+    // Buscar cuándo vencen las tarjetas ya estudiadas
+    const futureDuesDays = [];
+    active.forEach(d => {
+      const c = appState.cards[d.id];
+      if (c && c.state !== 'new' && c.due) {
+        const diffDays = Math.max(0.1, (c.due - nowMs) / (86400 * 1000));
+        futureDuesDays.push(diffDays);
+      }
+    });
+    futureDuesDays.sort((a, b) => a - b);
+
+    const dueIn1d = futureDuesDays.filter(x => x <= 1.35).length;
+    const dueIn2d = futureDuesDays.filter(x => x > 1.35 && x <= 2.6).length;
+    const dueIn3plus = futureDuesDays.filter(x => x > 2.6).length;
+
+    const earliestDays = futureDuesDays.length > 0 ? futureDuesDays[0] : 1;
+
+    let recommendedDays = 1;
+    let headline = '';
+    let detail = '';
+
+    if (dueReviews.length > 0) {
+      recommendedDays = 1;
+      headline = `Tienes ${dueReviews.length} repaso(s) vencido(s) ahora mismo`;
+      detail = 'Termina primero esos repasos vencidos antes de cerrar tu tarjeta de Anki.';
+    } else if (studiedToday === 0 && unseenNew.length > 0) {
+      recommendedDays = 1;
+      headline = `Haz tu Dosis Rápida de hoy (${Math.min(appState.dailyNewLimit || 7, unseenNew.length)} defs)`;
+      detail = 'Cuando termines la tanda de hoy, aquí te saldrá qué botón pulsar en Anki.';
+    } else if (unseenNew.length > 0) {
+      // Ya ha cumplido hoy (ej. las 15 que ya hizo hoy), pero aún quedan definiciones nuevas por estrenar otros días
+      recommendedDays = earliestDays < 1.2 ? 1 : (dueIn1d >= 2 ? 1 : 2);
+      headline = `En tu tarjeta de Anki pulsa el botón que marque ~${recommendedDays} ${recommendedDays === 1 ? 'día (1d)' : 'días (2d)'}`;
+      detail = `Hoy ya has entrenado ${studiedToday} definiciones. Como aún te quedan ${unseenNew.length} definiciones nuevas por ir estrenando en lotes cortos (y tienes ${dueIn1d} que vencen en ~1d y ${dueIn2d} en ~2d), en Anki elige el botón (Hard o Good) cuyo intervalo sea de ${recommendedDays}d.`;
+    } else {
+      // Ya se han estrenado las 49 definiciones: nos guiamos 100% por el próximo lote que baja del 90%
+      // Tomamos el percentil 15 o la 2ª tarjeta más próxima para no despertar por 1 sola tarjeta aislada
+      const refDays = futureDuesDays.length >= 3 ? futureDuesDays[2] : earliestDays;
+      recommendedDays = Math.max(1, Math.round(refDays));
+      headline = `En tu tarjeta de Anki pulsa el botón más cercano a ${recommendedDays} ${recommendedDays === 1 ? 'día' : 'días'}`;
+      detail = `¡Ya tienes las ${active.length} definiciones estrenadas! Tu próximo bloque cae al 90% de retención en ${formatInterval(refDays)}. Mira los días encima de los botones de Anki (Hard / Good / Easy) y pulsa el que más se acerque a ${recommendedDays}d.`;
+    }
+
+    return {
+      recommendedDays,
+      headline,
+      detail,
+      studiedToday,
+      unseenCount: unseenNew.length,
+      dueReviewsCount: dueReviews.length,
+      dailyDoseLeft,
+      dueIn1d,
+      dueIn2d,
+      dueIn3plus
+    };
   }
 
   function formatInterval(days) {
@@ -1285,40 +1390,70 @@
 
     const dueList = getDueDefinitions();
     const active = getActiveDefinitions();
-    const newCount = active.filter(d => !appState.cards[d.id] || appState.cards[d.id].state === 'new').length;
-    const dueReviewCount = dueList.length - newCount;
+    const advice = getAnkiSingleCardAdvice();
     const confusionPairsCount = Object.keys(appState.confusions || {}).length;
+    const doseSize = dueList.length > 0 ? Math.min(appState.dailyNewLimit || 7, dueList.length) : (appState.dailyNewLimit || 7);
 
     container.innerHTML = `
-      <div class="rounded-2xl bg-gradient-to-br from-emerald-950/90 via-slate-900 to-slate-900 border border-emerald-500/40 p-4 sm:p-6 shadow-xl">
+      <div class="rounded-2xl bg-gradient-to-br from-emerald-950/90 via-slate-900 to-slate-900 border border-emerald-500/40 p-4 sm:p-6 shadow-xl space-y-4">
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div class="space-y-2 max-w-2xl">
-            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
-              <span>🧠 Motor FSRS Activo (Umbral R = ${Math.round(appState.targetRetention * 100)}%)</span>
-              ${appState.timeOffsetDays > 0 ? `<span class="text-amber-300">· Reloj simulado: +${appState.timeOffsetDays}d</span>` : ''}
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
+                🧠 FSRS v5 (R = ${Math.round(appState.targetRetention * 100)}%)
+              </span>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-500/20 border border-sky-500/30 text-sky-300 text-xs font-bold">
+                ✅ Hechas hoy: ${advice.studiedToday} · Estrenadas: ${active.length - advice.unseenCount}/${active.length}
+              </span>
+              ${appState.timeOffsetDays > 0 ? `<span class="text-xs font-bold text-amber-300">· Reloj simulado: +${appState.timeOffsetDays}d</span>` : ''}
             </div>
             <h2 class="text-xl sm:text-2xl font-black text-white">
               ${dueList.length > 0
-                ? `Tienes <span class="text-emerald-400 underline decoration-emerald-500/50">${dueList.length} definiciones</span> listas para entrenar hoy`
-                : `¡Has limpiado todas las definiciones pendientes de hoy! 🎉`}
+                ? `Dosis de hoy: <span class="text-emerald-400 underline decoration-emerald-500/50">${dueList.length} definiciones</span> (${advice.dueReviewsCount} repasos + ${dueList.length - advice.dueReviewsCount} nuevas del cupo diario)`
+                : `¡Dosis diaria completada! (${advice.studiedToday} entrenadas hoy) 🎉`}
             </h2>
             <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
               ${dueList.length > 0
-                ? `Desglose hoy: <b>${Math.max(0, dueReviewCount)}</b> en punto crítico de olvido (R ≤ ${Math.round(appState.targetRetention * 100)}%) y <b>${newCount}</b> nuevas por estrenar. El juego adapta automáticamente el modo de pregunta y te califica según tu velocidad y precisión.`
-                : `${getNextDueForecastText()}. Si tu tarjeta gatillo de Anki te ha traído aquí o quieres repasar antes de tiempo, lanza un asalto de refuerzo debajo.`}
+                ? `Para no saturarte los primeros días, el juego dosifica <b>${appState.dailyNewLimit || 7} nuevas por día</b> junto con los repasos que caigan del 90%. Aún quedan <b>${advice.unseenCount}</b> nuevas en la recámara para los próximos días.`
+                : `No tienes que hacer las 49 el mismo día: hoy ya has cumplido tu cupo (${advice.studiedToday} hechas) y tienes 0 repasos urgentes pendientes. Quedan <b>${advice.unseenCount}</b> nuevas guardadas para estrenar en los próximos días.`}
             </p>
           </div>
 
-          <div class="flex flex-col sm:flex-row lg:flex-col gap-2.5 shrink-0">
-            <button onclick="startSession('fsrs_daily', 15)" class="px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2">
+          <div class="flex flex-col sm:flex-row lg:flex-col gap-2 shrink-0">
+            <button onclick="startSession('fsrs_daily', ${doseSize})" class="px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2">
               <span>⚡</span>
-              <span>${dueList.length > 0 ? `Iniciar Sesión FSRS (${Math.min(15, dueList.length)} defs · ~3 min)` : 'Repaso Adelantado FSRS (12 más débiles)'}</span>
+              <span>${dueList.length > 0 ? `Hacer Dosis de Hoy (${doseSize} pregs · ~2 min)` : `Adelantar lote extra (${appState.dailyNewLimit || 7} pregs)`}</span>
             </button>
-            ${dueList.length > 15 ? `
-              <button onclick="startSession('fsrs_daily', ${dueList.length})" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 font-bold text-xs transition">
-                Hacer las ${dueList.length} pendientes del tirón
+            ${advice.studiedToday > 0 ? `
+              <button onclick="startStudiedTodayReview()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-bold text-xs transition">
+                🔄 Repasar solo las ${advice.studiedToday} vistas hoy
               </button>
             ` : ''}
+          </div>
+        </div>
+
+        <!-- SEMÁFORO DE SINCRONIZACIÓN CON TU TARJETA ÚNICA DE ANKI -->
+        <div class="p-3.5 sm:p-4 rounded-xl bg-slate-950/90 border border-amber-500/40 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div class="space-y-1">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+              <span>🎯</span> <span>¿A qué botón le doy ahora en mi tarjeta única de Anki?</span>
+            </div>
+            <div class="text-sm sm:text-base font-black text-white">${advice.headline}</div>
+            <p class="text-xs text-slate-300 leading-relaxed">${advice.detail}</p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0 text-xs font-mono">
+            <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-center">
+              <div class="font-black text-amber-400">${advice.dueIn1d}</div>
+              <div class="text-[10px] text-slate-400">Vencen ~1d</div>
+            </div>
+            <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-center">
+              <div class="font-black text-sky-400">${advice.dueIn2d}</div>
+              <div class="text-[10px] text-slate-400">Vencen ~2d</div>
+            </div>
+            <div class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-center">
+              <div class="font-black text-emerald-400">${advice.dueIn3plus}</div>
+              <div class="text-[10px] text-slate-400">Vencen 3d+</div>
+            </div>
           </div>
         </div>
 
@@ -1454,6 +1589,16 @@
     `;
   }
 
+  function startStudiedTodayReview() {
+    const nowMs = getNowMs();
+    const todayDefs = getActiveDefinitions().filter(d => {
+      const c = appState.cards[d.id];
+      return c && c.lastReview && isSameCalendarDay(c.lastReview, nowMs);
+    });
+    if (todayDefs.length === 0) return;
+    launchQuestionQueue(shuffle(todayDefs).slice(0, 15), 'fsrs_daily', 'Repaso de las Definiciones Vistas Hoy');
+  }
+
   function pickPrioritizedDefs(count, clusterFilter = null, onlyConfusions = false) {
     let pool = getActiveDefinitions();
     if (clusterFilter) pool = pool.filter(d => d.cluster === clusterFilter);
@@ -1465,16 +1610,18 @@
     }
 
     const nowMs = getNowMs();
-    const scored = shuffle(pool).map(d => {
+    const scored = pool.map(d => {
       const c = appState.cards[d.id] || createEmptyCard(d.id);
       const isNew = c.state === 'new' || !c.lastReview;
       const r = isNew ? 0.899 : getRetrievability(c, nowMs);
-      const isDue = isNew || r <= appState.targetRetention + 0.005 || (c.due && c.due <= nowMs);
-      return { def: d, isDue, isNew, r };
+      const isDueReview = !isNew && (c.lastGrade === 1 || r <= appState.targetRetention + 0.005 || (c.due && c.due <= nowMs));
+      return { def: d, isDueReview, isNew, r };
     });
 
+    // Prioridad: 1º Repasos vencidos (menor R primero), 2º Nuevas en orden secuencial o por clúster, 3º Resto por menor R
     scored.sort((a, b) => {
-      if (a.isDue !== b.isDue) return a.isDue ? -1 : 1;
+      if (a.isDueReview !== b.isDueReview) return a.isDueReview ? -1 : 1;
+      if (a.isNew !== b.isNew) return a.isNew ? -1 : 1;
       return a.r - b.r;
     });
 
@@ -1852,13 +1999,10 @@
           </div>
         </div>
 
-        <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-700 text-left text-xs space-y-1">
-          <div class="font-extrabold text-sky-300">📌 Informe para tu Flashcard Gatillo de Anki:</div>
-          <p class="text-slate-300">
-            ${dueRemaining > 0
-              ? `Aún te quedan <b>${dueRemaining} definiciones</b> pendientes hoy para dejar el contador a cero. ¡Haz una tanda más de 2 minutos!`
-              : `Has dejado el contador de hoy a <b>0 pendientes</b>. En tu tarjeta gatillo de Anki puedes pulsar <b>GOOD</b> con total tranquilidad.`}
-          </p>
+        <div class="p-4 rounded-xl bg-slate-950 border border-amber-500/40 text-left text-xs space-y-1.5">
+          <div class="font-extrabold text-amber-400 uppercase tracking-wider">🎯 QUÉ PULSAR AHORA EN TU TARJETA DE ANKI:</div>
+          <div class="text-sm font-black text-white">${getAnkiSingleCardAdvice().headline}</div>
+          <p class="text-slate-300 leading-relaxed">${getAnkiSingleCardAdvice().detail}</p>
         </div>
 
         <div class="flex flex-col sm:flex-row gap-2.5 justify-center">
@@ -2464,12 +2608,25 @@
           <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 space-y-2 leading-relaxed">
             <p><b>1. Olvídate de meter 46 tarjetas en Anki:</b> Este juego ya ejecuta internamente las ecuaciones reales de <b>FSRS v5</b> (Dificultad D, Estabilidad S y Curva de Olvido R(t,S)) por separado para cada una de las definiciones.</p>
             <p><b>2. La "Tarjeta Gatillo" en tu mazo de Anki:</b> Si quieres que Anki te avise dentro de tu rutina diaria, crea <b>1 única tarjeta en Anki</b> que diga: <i>"Abrir Laboratorio FSRS T16.2 y dejar el contador de Pendientes Hoy a 0"</i>.</p>
-            <p><b>3. ¿Cuánto tiempo jugar cada vez?:</b> Solo hasta que el contador superior de <b>Pendientes hoy (${dueCount})</b> llegue a 0 (suele llevar entre 2 y 4 minutos).</p>
+            <p><b>3. ¿Cuánto tiempo jugar cada vez?:</b> Solo la Dosis Diaria (7 preguntas · ~2 minutos). Al terminar, el recuadro amarillo te indica qué botón de días pulsar en tu tarjeta única de Anki.</p>
             <div class="pt-2 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2">
               <span class="text-[11px] text-emerald-300 font-bold">Botón directo para pegar en el reverso de tu tarjeta de Anki:</span>
               <button onclick="copyAnkiButtonHtml()" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition">
                 📋 Copiar botón HTML para Anki
               </button>
+            </div>
+          </div>
+
+          <div class="space-y-2 pt-2">
+            <label class="text-xs font-extrabold uppercase tracking-wider text-slate-400 block">
+              Cupo de Definiciones Nuevas por Día (Dosis Diaria):
+            </label>
+            <div class="flex flex-wrap gap-2">
+              ${[5, 7, 10, 15].map(lim => `
+                <button onclick="setDailyNewLimit(${lim})" class="px-3.5 py-2 rounded-xl text-xs font-bold border transition ${(appState.dailyNewLimit || 7) === lim ? 'bg-emerald-600 text-white border-emerald-400' : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800'}">
+                  ${lim} nuevas/día ${lim === 7 ? '(Recomendado ~2 min)' : ''}
+                </button>
+              `).join('')}
             </div>
           </div>
 
@@ -2531,6 +2688,12 @@
         </div>
       </div>
     `;
+  }
+
+  function setDailyNewLimit(lim) {
+    appState.dailyNewLimit = lim;
+    saveState();
+    renderSettingsTab();
   }
 
   function setTargetRetention(val) {
@@ -2630,7 +2793,9 @@
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
+      navigator.serviceWorker.register('./sw.js').then(reg => {
+        reg.update();
+      }).catch(() => {});
     });
   }
 

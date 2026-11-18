@@ -1,4 +1,4 @@
-const CACHE_NAME = 't16-2-fsrs-v3';
+const CACHE_NAME = 't16-2-fsrs-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -9,10 +9,10 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', event => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => Promise.allSettled(ASSETS.map(url => cache.add(url))))
-      .then(() => self.skipWaiting())
   );
 });
 
@@ -24,18 +24,18 @@ self.addEventListener('activate', event => {
   );
 });
 
+// Network-first: siempre descarga la última versión si hay internet; si no hay internet, usa la caché offline
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      const fetchPromise = fetch(event.request).then(networkRes => {
+    fetch(event.request)
+      .then(networkRes => {
         if (networkRes && (networkRes.status === 200 || networkRes.type === 'opaque')) {
           const copy = networkRes.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
         }
         return networkRes;
-      }).catch(() => cached);
-      return cached || fetchPromise;
-    })
+      })
+      .catch(() => caches.match(event.request))
   );
 });
