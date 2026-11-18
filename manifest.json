@@ -1,0 +1,19 @@
+{
+  "name": "T16.2 · Laboratorio FSRS Definiciones (GC)",
+  "short_name": "T16.2 FSRS",
+  "description": "Entrenador FSRS v5 de las 46 definiciones de la Ley 42/2007 (Tema 16.2 Guardia Civil)",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0b1120",
+  "theme_color": "#0b1120",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

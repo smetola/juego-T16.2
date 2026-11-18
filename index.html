@@ -1,0 +1,2644 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0b1120" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="T16.2 FSRS" />
+  <title>T16.2 · Laboratorio FSRS de Definiciones (ProCivil GC)</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <link rel="apple-touch-icon" href="./icon.svg" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #131c31;
+      --bg-elevated: #1e293b;
+      --border-col: #2dd4bf33;
+      --border-subtle: #334155;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --gold: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .kw-highlight b, b.kw {
+      color: #34d399;
+      font-weight: 700;
+      background: rgba(16, 185, 129, 0.12);
+      padding: 0 4px;
+      border-radius: 4px;
+    }
+    .cloze-slot {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 110px;
+      padding: 2px 10px;
+      margin: 2px 4px;
+      border-radius: 6px;
+      border: 2px dashed #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+      color: #38bdf8;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .cloze-slot.filled {
+      border-style: solid;
+      background: rgba(16, 185, 129, 0.2);
+      border-color: #10b981;
+      color: #6ee7b7;
+    }
+    .cloze-slot.wrong {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+    }
+    .option-btn {
+      transition: all 0.15s ease;
+      text-align: left;
+    }
+    .option-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      border-color: #38bdf8;
+      background: rgba(30, 41, 59, 0.95);
+    }
+    .option-btn.correct-ans {
+      border-color: #10b981 !important;
+      background: rgba(16, 185, 129, 0.18) !important;
+      color: #ecfdf5 !important;
+    }
+    .option-btn.wrong-ans {
+      border-color: #ef4444 !important;
+      background: rgba(239, 68, 68, 0.18) !important;
+      color: #fef2f2 !important;
+    }
+    .match-card {
+      transition: all 0.15s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+    .match-card.selected {
+      border-color: #38bdf8 !important;
+      background: rgba(56, 189, 248, 0.2) !important;
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.35);
+    }
+    .match-card.matched {
+      opacity: 0.35;
+      pointer-events: none;
+      border-color: #10b981 !important;
+      background: rgba(16, 185, 129, 0.1) !important;
+    }
+    .match-card.error-flash {
+      border-color: #ef4444 !important;
+      background: rgba(239, 68, 68, 0.28) !important;
+    }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-30 bg-[#0f172a]/95 backdrop-blur border-b border-slate-800 px-3 sm:px-6 py-2.5">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-black text-sm shadow-inner">
+          16.2
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-sm sm:text-base font-extrabold tracking-tight text-white">Definiciones Ley 42/2007</h1>
+            <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Motor FSRS v5</span>
+          </div>
+          <p class="text-[11px] text-slate-400 hidden sm:block">Patrimonio Natural y Biodiversidad · Entrenador Antitrampas GC</p>
+        </div>
+      </div>
+
+      <!-- KPI PILLS -->
+      <div class="flex items-center gap-2 sm:gap-3 text-xs">
+        <div class="px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 flex items-center gap-1.5" title="Definiciones nuevas o con probabilidad de recuerdo R ≤ umbral FSRS">
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+          <span class="text-slate-400 hidden md:inline">Pendientes hoy:</span>
+          <span id="kpi-due" class="font-extrabold text-amber-400 tabular-nums">0</span>
+        </div>
+        <div class="px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 flex items-center gap-1.5" title="Retención media calculada en tiempo real con la curva de olvido FSRS">
+          <span class="text-slate-400 hidden md:inline">Retención R:</span>
+          <span id="kpi-retention" class="font-extrabold text-sky-400 tabular-nums">100%</span>
+        </div>
+        <div class="px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 flex items-center gap-1.5" title="Definiciones con estabilidad S ≥ 7 días">
+          <span class="text-slate-400 hidden md:inline">Consolidadas:</span>
+          <span id="kpi-mastered" class="font-extrabold text-emerald-400 tabular-nums">0/49</span>
+        </div>
+        <button id="btn-install-pwa" onclick="installPWA()" class="hidden px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition shadow">
+          📲 Instalar App
+        </button>
+        <div class="px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 flex items-center gap-1" title="Racha de aciertos seguidos">
+          <span>🔥</span>
+          <span id="kpi-streak" class="font-extrabold text-orange-400 tabular-nums">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAVIGATION TABS -->
+    <div class="max-w-6xl mx-auto mt-2.5 flex items-center gap-1.5 overflow-x-auto pb-0.5">
+      <button onclick="switchTab('play')" id="tab-btn-play" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-emerald-600 text-white shadow">
+        <span>🎮</span> <span>Jugar / FSRS</span>
+      </button>
+      <button onclick="switchTab('twins')" id="tab-btn-twins" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-slate-800/80 text-slate-300 hover:bg-slate-700">
+        <span>🔬</span> <span>Rayos X de Gemelos</span>
+      </button>
+      <button onclick="switchTab('radar')" id="tab-btn-radar" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-slate-800/80 text-slate-300 hover:bg-slate-700">
+        <span>📊</span> <span>Radar FSRS y Diccionario (49)</span>
+      </button>
+      <button onclick="switchTab('settings')" id="tab-btn-settings" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-slate-800/80 text-slate-300 hover:bg-slate-700">
+        <span>💾</span> <span>Puente Anki y Datos</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="flex-1 max-w-6xl w-full mx-auto p-3 sm:p-6">
+    <section id="tab-play" class="space-y-5"></section>
+    <section id="tab-twins" class="hidden space-y-5"></section>
+    <section id="tab-radar" class="hidden space-y-4"></section>
+    <section id="tab-settings" class="hidden space-y-5"></section>
+  </main>
+
+  <script>
+  const CLUSTERS = {
+    especies: {
+      id: 'especies', name: 'Especies, Taxones e Introducción', icon: '🐾', color: 'amber',
+      summary: 'Cuidado extremo con: Especie autóctona vs. Taxones autóctonos ("incluidos los extinguidos"), Especie naturalizada ("antes de la entrada en vigor + interés social/económico") e Introducción vs. Suelta.'
+    },
+    estados: {
+      id: 'estados', name: 'Estados de Conservación, Objetivos y Áreas Críticas', icon: '📈', color: 'rose',
+      summary: 'El grupo más trampa del examen: Hábitat general ("conjunto de influencias") vs. Hábitat favorable ("estable o se amplía + estructura y funciones") vs. Especie favorable ("dinámica poblacional") vs. Objetivo de conservación ("niveles + superficie y calidad para alcanzar").'
+    },
+    recursos: {
+      id: 'recursos', name: 'Material y Recursos (Genéticos, Biológicos, Naturales, Zoogenéticos)', icon: '🧬', color: 'purple',
+      summary: 'Escalada de conceptos: Material genético ("unidades funcionales de la herencia") → Recursos genéticos ("material genético de valor real o potencial") → Recursos biológicos ("componente biótico") → Recursos naturales ("todo componente de la naturaleza, biótico o abiótico").'
+    },
+    conservacion: {
+      id: 'conservacion', name: 'Conservación (In situ / Ex situ), Restauración y Gestión', icon: '🛡️', color: 'emerald',
+      summary: 'Conservación ("mantenimiento o restablecimiento en estado favorable") vs. In situ ("en sus entornos naturales / donde hayan desarrollado sus propiedades") vs. Ex situ ("fuera") vs. Restauración ("hacia un estado maduro").'
+    },
+    territorio: {
+      id: 'territorio', name: 'Custodia, Corredores, Reservas de Biosfera y Jardín Botánico', icon: '🗺️', color: 'sky',
+      summary: 'Diferenciar Custodia del territorio ("conjunto de estrategias o técnicas jurídicas") de Entidad de custodia ("organización pública o privada, SIN ánimo de lucro").'
+    },
+    gea_habitats: {
+      id: 'gea_habitats', name: 'Gea, Biodiversidad, Ecosistema, Hábitats y Paisaje', icon: '⛰️', color: 'teal',
+      summary: 'Diferenciar Hábitats naturales ("zonas terrestres o acuáticas") de Hábitat de una especie ("medio donde vive en una de las fases de su ciclo biológico") y Ecosistema ("unidad funcional"). Geodiversidad vs. Patrimonio Geológico (4 letras a,b,c,d) vs. Geoparques.'
+    },
+    funcion_social: {
+      id: 'funcion_social', name: 'Función Social, Interés General y Deberes (Pág. 1 y 3)', icon: '⚖️', color: 'indigo',
+      summary: 'Cuadro final de la página 3: Actividades → utilidad pública o interés social (efectos expropiatorios). Obras necesarias → declaradas por el ESTADO de interés general, previo informe CCAA, mediante LEY ESTATAL.'
+    }
+  };
+
+  const DEFINITIONS = [
+    {
+      id: '1', num: '1', term: 'Áreas de montaña', cluster: 'gea_habitats',
+      def: 'Territorios <b>continuos y extensos</b>, con <b>altimetría elevada</b> y sostenida respecto a los territorios circundantes, cuyas características físicas <b>causan la aparición de gradientes</b> ecológicos que condicionan la organización de los ecosistemas y afectan a los seres vivos y a las sociedades humanas que en ellas se desarrollan.',
+      hook: 'Continuos y extensos + altimetría elevada y sostenida + aparición de gradientes ecológicos.',
+      clozes: ['continuos y extensos', 'altimetría elevada', 'gradientes ecológicos'],
+      traps: [
+        { fakeText: 'Territorios discontinuos y fragmentados, con altimetría elevada y sostenida respecto a los territorios circundantes, cuyas características físicas causan la aparición de gradientes ecológicos.', explanation: 'TRAMPA: La ley exige que sean territorios «continuos y extensos», nunca discontinuos.' },
+        { fakeText: 'Territorios delimitados que presentan formas geológicas únicas, con altimetría elevada y sostenida, representativos de la historia evolutiva geológica.', explanation: 'TRAMPA: Mezcla Áreas de montaña con el inicio de Geoparques («territorios delimitados que presentan formas geológicas únicas»).' }
+      ],
+      fakeNames: ['Zonas de alta montaña', 'Regiones biogeográficas de montaña', 'Macizos montañosos protegidos'],
+      siblings: ['19', '26', '8', '20']
+    },
+    {
+      id: '2', num: '2', term: 'Área crítica para una especie', cluster: 'estados',
+      def: 'Aquellos sectores incluidos en el área de distribución que contengan <b>hábitats esenciales</b> para la <b>conservación favorable</b> de la especie o que por su situación estratégica para la misma requieran su <b>adecuado mantenimiento</b>.',
+      hook: 'Sectores con hábitats esenciales para la conservación favorable o situación estratégica.',
+      clozes: ['hábitats esenciales', 'conservación favorable', 'adecuado mantenimiento'],
+      traps: [
+        { fakeText: 'Aquellos sectores situados fuera del área de distribución natural que contengan hábitats esenciales para la reintroducción ex situ de la especie.', explanation: 'TRAMPA: Son sectores «incluidos en el área de distribución», no fuera de ella.' },
+        { fakeText: 'Situación en que una especie, por contener hábitats esenciales reducidos, se encuentra en riesgo inminente de extinción en estado silvestre.', explanation: 'TRAMPA: Eso mezcla Área crítica (sectores geográficos) con Situación crítica de una especie (riesgo inminente de extinción).' }
+      ],
+      fakeNames: ['Zona crítica de supervivencia', 'Hábitat crítico de una especie', 'Sector prioritario de conservación'],
+      siblings: ['40', '21', '16', '25']
+    },
+    {
+      id: '3', num: '3', term: 'Biodiversidad o diversidad biológica', cluster: 'gea_habitats',
+      def: 'Variabilidad de los <b>organismos vivos</b> de cualquier fuente, incluidos entre otras cosas, los ecosistemas <b>terrestres y marinos</b> y otros ecosistemas acuáticos y los <b>complejos ecológicos</b> de los que forman parte; comprende la diversidad dentro de cada especie, entre las especies y de los ecosistemas.',
+      hook: 'Variabilidad de organismos vivos (dentro de cada especie, entre especies y de los ecosistemas).',
+      clozes: ['organismos vivos', 'terrestres y marinos', 'complejos ecológicos'],
+      traps: [
+        { fakeText: 'Variabilidad de los organismos vivos y de los elementos geológicos de cualquier fuente, incluidos los ecosistemas terrestres y marinos; comprende la diversidad entre las especies y de los ecosistemas, excluyendo la diversidad genética dentro de cada especie.', explanation: 'TRAMPA: No incluye elementos geológicos (eso es Geodiversidad) y SÍ comprende «la diversidad dentro de cada especie, entre las especies y de los ecosistemas».' }
+      ],
+      fakeNames: ['Patrimonio biológico', 'Variabilidad ecosistémica', 'Riqueza biológica natural'],
+      siblings: ['18', '10', '27', '28']
+    },
+    {
+      id: '4', num: '4', term: 'Conocimiento tradicional', cluster: 'territorio',
+      def: 'El conocimiento, las <b>innovaciones y prácticas</b> de las <b>poblaciones locales</b> ligados al patrimonio natural y la biodiversidad, desarrolladas desde la experiencia y adaptadas a la cultura y el medio ambiente local.',
+      hook: 'Conocimiento, innovaciones y prácticas de las poblaciones locales desde la experiencia.',
+      clozes: ['innovaciones y prácticas', 'poblaciones locales', 'experiencia'],
+      traps: [
+        { fakeText: 'El conjunto de estrategias o técnicas jurídicas de las poblaciones locales a través de las cuales se implican los propietarios en la conservación del medio ambiente local.', explanation: 'TRAMPA: «Estrategias o técnicas jurídicas» es Custodia del territorio (9), no Conocimiento tradicional.' }
+      ],
+      fakeNames: ['Patrimonio cultural etnográfico', 'Sabiduría ambiental tradicional', 'Usos tradicionales del territorio'],
+      siblings: ['9', '26', '36', '27']
+    },
+    {
+      id: '5', num: '5', term: 'Conservación', cluster: 'conservacion',
+      def: '<b>Mantenimiento o restablecimiento</b> en estado <b>favorable</b> del patrimonio natural y la biodiversidad, en particular, de los <b>hábitats naturales y seminaturales</b> de las poblaciones de especies de fauna y de flora silvestres, así como el conjunto de medidas necesarias para conseguirlo.',
+      hook: 'Mantenimiento o restablecimiento en estado favorable + conjunto de medidas para conseguirlo.',
+      clozes: ['Mantenimiento o restablecimiento', 'favorable', 'hábitats naturales y seminaturales'],
+      traps: [
+        { fakeText: 'Conjunto de actividades orientadas exclusivamente a restablecer la funcionalidad y capacidad de evolución de los ecosistemas hacia un estado maduro.', explanation: 'TRAMPA: Eso es Restauración de ecosistemas (32). Conservación es «mantenimiento o restablecimiento en estado favorable».' },
+        { fakeText: 'Mantenimiento y recuperación de poblaciones viables de especies silvestres en sus entornos naturales y de especies domesticadas en los entornos en que hayan desarrollado sus propiedades.', explanation: 'TRAMPA: Eso es Conservación in situ (6), no la definición general de Conservación (5).' }
+      ],
+      fakeNames: ['Preservación ecológica', 'Protección ambiental', 'Gestión conservacionista'],
+      siblings: ['6', '7', '32', '25']
+    },
+    {
+      id: '6', num: '6', term: 'Conservación in situ', cluster: 'conservacion', official: 'OFICIAL 2021-1',
+      def: 'Conservación de los ecosistemas y los <b>hábitats naturales y seminaturales</b> el <b>mantenimiento y recuperación</b> de poblaciones viables de especies silvestres <b>en sus entornos naturales</b> y, en el caso de las especies domesticadas y cultivadas, en los entornos en que hayan desarrollado sus propiedades específicas.',
+      hook: 'En sus entornos naturales + especies domesticadas/cultivadas donde desarrollaron sus propiedades.',
+      clozes: ['mantenimiento y recuperación', 'en sus entornos naturales', 'propiedades específicas'],
+      traps: [
+        { fakeText: 'Conservación de los ecosistemas y los hábitats naturales y seminaturales y el mantenimiento de poblaciones viables exclusivamente de especies silvestres, excluyendo las especies domesticadas y cultivadas.', explanation: 'TRAMPA: Conservación in situ INCLUYE expresamente las especies domesticadas y cultivadas «en los entornos en que hayan desarrollado sus propiedades específicas».' }
+      ],
+      fakeNames: ['Conservación endógena', 'Conservación en origen', 'Preservación in situ'],
+      siblings: ['5', '7', '32', '41']
+    },
+    {
+      id: '7', num: '7', term: 'Conservación ex situ', cluster: 'conservacion',
+      def: '<b>Conservación</b> de componentes de la diversidad biológica <b>fuera</b> de sus hábitats naturales.',
+      hook: 'Conservación de componentes de la diversidad biológica FUERA de sus hábitats naturales.',
+      clozes: ['Conservación', 'fuera', 'hábitats naturales'],
+      traps: [
+        { fakeText: 'Conservación de componentes de la diversidad biológica en hábitats seminaturales o artificiales dentro de su área de distribución natural.', explanation: 'TRAMPA: La definición literal es cortísima y directa: «conservación de componentes de la diversidad biológica FUERA de sus hábitats naturales».' }
+      ],
+      fakeNames: ['Conservación externa', 'Preservación en cautividad', 'Conservación alóctona'],
+      siblings: ['6', '5', '41', '22bis']
+    },
+    {
+      id: '8', num: '8', term: 'Corredor ecológico', cluster: 'territorio', official: 'OFICIAL 2020-2',
+      def: 'Territorio, de extensión y configuración variables, que, debido a su disposición y a su estado de conservación, <b>conecta funcionalmente espacios naturales</b> de singular relevancia para la flora o la fauna silvestres, <b>separados entre sí</b>, permitiendo, entre otros procesos <b>ecológicos</b>, el intercambio genético entre poblaciones de especies silvestres o la migración de especímenes de esas especies.',
+      hook: 'Conecta funcionalmente espacios naturales separados entre sí (intercambio genético / migración).',
+      clozes: ['conecta funcionalmente espacios naturales', 'separados entre sí', 'intercambio genético'],
+      traps: [
+        { fakeText: 'Territorio continuo y extenso, con altimetría fija, que conecta administrativamente espacios protegidos colindantes entre sí.', explanation: 'TRAMPA: Es de «extensión y configuración variables» y «conecta funcionalmente espacios naturales... separados entre sí».' }
+      ],
+      fakeNames: ['Puente ecológico', 'Conector ambiental', 'Vía de conectividad biológica'],
+      siblings: ['1', '2', '20', '10']
+    },
+    {
+      id: '9', num: '9', term: 'Custodia del territorio', cluster: 'territorio',
+      def: 'Conjunto de <b>estrategias o técnicas jurídicas</b> a través de las cuales se <b>implican</b> a los <b>propietarios y usuarios</b> del territorio en la conservación y uso de los valores y los recursos naturales, culturales y paisajísticos.',
+      hook: 'Conjunto de estrategias o técnicas jurídicas que implican a propietarios y usuarios.',
+      clozes: ['estrategias o técnicas jurídicas', 'implican', 'propietarios y usuarios'],
+      traps: [
+        { fakeText: 'Organización pública o privada, sin ánimo de lucro, a través de la cual se implican a los propietarios y usuarios del territorio en la conservación.', explanation: 'TRAMPA MORTAL: «Organización pública o privada, sin ánimo de lucro» es ENTIDAD de custodia del territorio (37). Custodia del territorio (9) es el «conjunto de estrategias o técnicas jurídicas».' }
+      ],
+      fakeNames: ['Acuerdo de gestión territorial', 'Concertación del territorio', 'Tutela ambiental del territorio'],
+      siblings: ['37', '22', '4', '31']
+    },
+    {
+      id: '10', num: '10', term: 'Ecosistema', cluster: 'gea_habitats', official: 'OFICIAL 2021-2',
+      def: 'Complejo dinámico de <b>comunidades vegetales, animales y de microorganismos</b> y su <b>medio no viviente</b> que <b>interactúan</b> como una unidad funcional.',
+      hook: 'Complejo dinámico (vegetales, animales, microorganismos + medio no viviente) = unidad funcional.',
+      clozes: ['comunidades vegetales, animales y de microorganismos', 'medio no viviente', 'unidad funcional'],
+      traps: [
+        { fakeText: 'Zona terrestre o acuática diferenciada por sus características geográficas, abióticas y bióticas, tanto si es enteramente natural como seminatural.', explanation: 'TRAMPA: Eso es Hábitats naturales (20). Ecosistema (10) es «complejo dinámico... que interactúan como una unidad funcional».' }
+      ],
+      fakeNames: ['Complejo ecológico', 'Biocenosis funcional', 'Unidad biogeográfica'],
+      siblings: ['20', '21', '3', '32']
+    },
+    {
+      id: '11', num: '11', term: 'Especie autóctona', cluster: 'especies',
+      def: 'La existente <b>dentro</b> de su área de distribución natural.',
+      hook: 'La existente DENTRO de su área de distribución natural (ojo: sin mencionar extinguidas).',
+      clozes: ['existente', 'dentro', 'distribución natural'],
+      traps: [
+        { fakeText: 'La existente de forma natural en un lugar determinado, incluidas las extinguidas en el pasado, en su caso.', explanation: 'TRAMPA MORTAL: Quien dice «incluidos los extinguidos, en su caso» es TAXONES AUTÓCTONOS (35), NO Especie autóctona (11).' }
+      ],
+      fakeNames: ['Especie nativa', 'Especie endémica', 'Especie originaria'],
+      siblings: ['12', '35', '29ter', '13']
+    },
+    {
+      id: '12', num: '12', term: 'Especie autóctona extinguida', cluster: 'especies',
+      def: 'Especie autóctona <b>desaparecida</b> en el pasado de su <b>área</b> de distribución natural.',
+      hook: 'Especie autóctona desaparecida en el pasado de su área de distribución natural.',
+      clozes: ['autóctona', 'desaparecida', 'distribución natural'],
+      traps: [
+        { fakeText: 'Especie autóctona que se encuentra en riesgo inminente de desaparición en estado silvestre dentro de su área de distribución natural.', explanation: 'TRAMPA: Riesgo inminente es Situación crítica (40). Especie autóctona extinguida es la ya «desaparecida en el pasado».' }
+      ],
+      fakeNames: ['Especie extinta en estado silvestre', 'Especie desaparecida', 'Especie autóctona extinta'],
+      siblings: ['34', '11', '35', '40']
+    },
+    {
+      id: '13', num: '13', term: 'Especie exótica invasora', cluster: 'especies',
+      def: 'La que se <b>introduce o establece</b> en un ecosistema o hábitat natural o seminatural y que es un <b>agente de cambio</b> y <b>amenaza</b> para la diversidad biológica nativa, ya sea por su comportamiento <b>invasor</b>, o por el riesgo de <b>contaminación genética</b>.',
+      hook: 'Agente de cambio y amenaza (por comportamiento invasor o contaminación genética).',
+      clozes: ['introduce o establece', 'agente de cambio', 'contaminación genética'],
+      traps: [
+        { fakeText: 'Especie exótica establecida en el ecosistema con carácter permanente, introducida antes de la entrada en vigor de la Ley y que presenta un especial interés social o económico.', explanation: 'TRAMPA: Esa es la Especie naturalizada (29 ter), que NO tiene evidencias de efectos significativos.' }
+      ],
+      fakeNames: ['Especie alóctona colonizadora', 'Especie exótica dañina', 'Especie foránea amenazante'],
+      siblings: ['29ter', '22bis', '11', '42']
+    },
+    {
+      id: '14', num: '14', term: 'Estado de conservación de un hábitat', cluster: 'estados', official: 'OFICIAL 2023-2',
+      def: 'Situación derivada del conjunto de las <b>influencias</b> que actúan sobre el <b>hábitat natural o seminatural</b> de que se trate y sobre las especies típicas asentadas en el mismo y que pueden <b>afectar a largo plazo</b> a su distribución natural, su estructura y funciones, así como a la supervivencia de sus especies típicas en el territorio.',
+      hook: 'Situación derivada del conjunto de las INFLUENCIAS que actúan sobre el hábitat y sus especies típicas.',
+      clozes: ['influencias', 'hábitat natural o seminatural', 'afectar a largo plazo'],
+      traps: [
+        { fakeText: 'Situación en la que el área de distribución natural del hábitat es estable o se amplía y la estructura y funciones específicas necesarias existen a largo plazo.', explanation: 'TRAMPA: Eso es Estado de conservación FAVORABLE de un hábitat natural (15). El Estado de conservación a secas (14) es la «situación derivada del conjunto de las influencias».' }
+      ],
+      fakeNames: ['Estado de conservación de un ecosistema', 'Situación ecológica de un hábitat', 'Grado de conservación del hábitat'],
+      siblings: ['15', '16', '25', '20']
+    },
+    {
+      id: '15', num: '15', term: 'Estado de conservación favorable de un hábitat natural', cluster: 'estados',
+      def: 'Cuando su área de <b>distribución natural</b> es <b>estable</b> o se <b>amplía</b>; la estructura y funciones específicas necesarias para su mantenimiento a <b>largo plazo existen y pueden seguir existiendo</b> en un <b>futuro previsible</b>; y el estado de <b>conservación</b> de sus especies es <b>favorable</b>.',
+      hook: 'HÁBITAT FAVORABLE: 1) Área estable o se amplía + 2) Estructura y funciones existen + 3) Especies favorables.',
+      clozes: ['estable o se amplía', 'estructura y funciones', 'futuro previsible'],
+      traps: [
+        { fakeText: 'Cuando su dinámica poblacional indica que sigue y puede seguir constituyendo a largo plazo un elemento vital de los hábitats a los que pertenece.', explanation: 'TRAMPA CLÁSICA: «Dinámica poblacional» es Estado de conservación favorable de una ESPECIE (16). El del HÁBITAT (15) habla de «estructura y funciones específicas» y área que «es estable o se amplía».' }
+      ],
+      fakeNames: ['Objetivo de conservación favorable de un hábitat', 'Estado ecológico óptimo de un hábitat', 'Hábitat en régimen favorable'],
+      siblings: ['14', '16', '25', '2']
+    },
+    {
+      id: '16', num: '16', term: 'Estado de conservación favorable de una especie', cluster: 'estados',
+      def: 'Cuando su <b>dinámica poblacional</b> indica que sigue y puede seguir constituyendo a <b>largo plazo</b> un elemento vital de los hábitats a los que pertenece; el área de distribución natural <b>no se está reduciendo</b> ni haya <b>amenazas</b> de reducción en un <b>futuro previsible</b>; <b>existe</b> y probablemente <b>siga existiendo</b> un hábitat de extensión suficiente para mantener sus poblaciones a <b>largo plazo</b>.',
+      hook: 'ESPECIE FAVORABLE: 1) Dinámica poblacional vital + 2) Área no se reduce + 3) Hábitat de extensión suficiente.',
+      clozes: ['dinámica poblacional', 'no se está reduciendo', 'extensión suficiente'],
+      traps: [
+        { fakeText: 'Cuando su área de distribución natural se amplía obligatoriamente cada año y la estructura y funciones específicas del territorio permanecen inalteradas.', explanation: 'TRAMPA: Para la especie dice que el área «no se está reduciendo» y habla de «dinámica poblacional» y «hábitat de extensión suficiente».' }
+      ],
+      fakeNames: ['Viabilidad demográfica favorable de una especie', 'Situación favorable de una especie', 'Estabilidad poblacional de una especie'],
+      siblings: ['15', '14', '40', '25']
+    },
+    {
+      id: '17', num: '17', term: 'Externalidad', cluster: 'conservacion',
+      def: 'Todo efecto producido por una <b>acción</b>, que <b>no</b> era <b>buscado</b> en los objetivos de la misma.',
+      hook: 'Todo efecto producido por una acción que NO era buscado en sus objetivos.',
+      clozes: ['acción', 'no era buscado', 'objetivos'],
+      traps: [
+        { fakeText: 'Todo impacto negativo producido por un plan o proyecto que debe ser compensado lo más exactamente posible.', explanation: 'TRAMPA: Eso se refiere a las Medidas compensatorias (24). Externalidad es cualquier efecto (positivo o negativo) «que no era buscado en los objetivos».' }
+      ],
+      fakeNames: ['Impacto colateral', 'Efecto ambiental secundario', 'Incidencia indirecta'],
+      siblings: ['24', '22', '36']
+    },
+    {
+      id: '18', num: '18', term: 'Geodiversidad o diversidad geológica', cluster: 'gea_habitats',
+      def: 'Variedad de <b>elementos geológicos</b>, incluidos rocas, minerales, fósiles, suelos, formas del relieve, formaciones y unidades geológicas y paisajes que son el <b>producto y registro</b> de la evolución de la Tierra.',
+      hook: 'Variedad de elementos geológicos que son el PRODUCTO Y REGISTRO de la evolución de la Tierra.',
+      clozes: ['elementos geológicos', 'producto y registro', 'evolución de la Tierra'],
+      traps: [
+        { fakeText: 'Conjunto de recursos naturales geológicos de valor científico, cultural y/o educativo que permiten conocer el origen y evolución de la vida y los climas del pasado.', explanation: 'TRAMPA: Eso es Patrimonio Geológico (38). Geodiversidad (18) empieza por «variedad de elementos geológicos... que son el producto y registro de la evolución de la Tierra».' }
+      ],
+      fakeNames: ['Riqueza litológica', 'Variabilidad geomorfológica', 'Diversidad abiótica'],
+      siblings: ['38', '19', '3', '27']
+    },
+    {
+      id: '19', num: '19', term: 'Geoparques o parques geológicos', cluster: 'gea_habitats', official: 'OFICIAL 2025',
+      def: 'Territorios <b>delimitados</b> que presentan <b>formas geológicas únicas</b>, de <b>especial importancia científica, singularidad o belleza</b> y que son <b>representativos</b> de la historia evolutiva geológica y de los eventos y procesos que las han formado. También lugares que <b>destacan</b> por sus valores arqueológicos, ecológicos o culturales relacionados con la <b>gea</b>.',
+      hook: 'Territorios delimitados con formas geológicas únicas + valores relacionados con la GEA.',
+      clozes: ['delimitados', 'formas geológicas únicas', 'gea'],
+      traps: [
+        { fakeText: 'Yacimientos paleontológicos y mineralógicos que se declaran por ley estatal sin límites territoriales definidos.', explanation: 'TRAMPA: Los Geoparques son «territorios delimitados que presentan formas geológicas únicas... y valores relacionados con la gea».' }
+      ],
+      fakeNames: ['Reservas geológicas', 'Áreas geológicas protegidas', 'Paisajes geológicos'],
+      siblings: ['38', '18', '31', '1']
+    },
+    {
+      id: '20', num: '20', term: 'Hábitats naturales', cluster: 'gea_habitats',
+      def: 'Zonas <b>terrestres</b> o <b>acuáticas diferenciadas</b> por sus características <b>geográficas, abióticas y bióticas</b>, tanto si son enteramente <b>naturales</b> como <b>seminaturales</b>.',
+      hook: 'Zonas terrestres o acuáticas diferenciadas (geográficas, abióticas y bióticas), naturales o seminaturales.',
+      clozes: ['terrestres o acuáticas', 'geográficas, abióticas y bióticas', 'seminaturales'],
+      traps: [
+        { fakeText: 'Zonas terrestres o acuáticas diferenciadas por sus características abióticas, siempre que sean enteramente naturales y no hayan sufrido intervención humana.', explanation: 'TRAMPA: Incluye explícitamente «tanto si son enteramente naturales como SEMINATURALES».' },
+        { fakeText: 'Medio definido por factores abióticos y bióticos específicos donde vive la especie en una de las fases de su ciclo biológico.', explanation: 'TRAMPA: Eso es Hábitat de una especie (21), no Hábitats naturales (20).' }
+      ],
+      fakeNames: ['Biotopos naturales', 'Entornos ecológicos naturales', 'Zonas bioclimáticas'],
+      siblings: ['21', '10', '14', '15']
+    },
+    {
+      id: '21', num: '21', term: 'Hábitat de una especie', cluster: 'gea_habitats',
+      def: 'Medio definido por factores <b>abióticos y bióticos</b> específicos donde <b>vive</b> la especie en una de las fases de su <b>ciclo biológico</b>.',
+      hook: 'Medio (factores abióticos y bióticos) donde vive la especie en una fase de su CICLO BIOLÓGICO.',
+      clozes: ['abióticos y bióticos', 'vive', 'ciclo biológico'],
+      traps: [
+        { fakeText: 'Zonas terrestres o acuáticas diferenciadas por sus características geográficas, abióticas y bióticas, tanto naturales como seminaturales.', explanation: 'TRAMPA: Eso es Hábitats naturales (20). El Hábitat de una especie (21) es el «medio... donde vive la especie en una de las fases de su ciclo biológico».' }
+      ],
+      fakeNames: ['Nicho ecológico de una especie', 'Área de distribución de una especie', 'Biotopo específico'],
+      siblings: ['20', '2', '10', '16']
+    },
+    {
+      id: '22', num: '22', term: 'Instrumentos de gestión', cluster: 'conservacion',
+      def: 'Bajo esta denominación se incluye cualquier <b>técnica</b> de <b>gestión</b> de un <b>espacio natural</b> y de sus usos, que haya sido sometido a un proceso de <b>información pública</b>, haya sido objeto de una <b>aprobación formal</b> y haya sido <b>publicado</b>.',
+      hook: 'Técnica de gestión con 3 requisitos: 1) Información pública + 2) Aprobación formal + 3) Publicado.',
+      clozes: ['información pública', 'aprobación formal', 'publicado'],
+      traps: [
+        { fakeText: 'Cualquier técnica de gestión de un espacio natural que haya sido aprobada internamente sin necesidad de información pública ni publicación oficial.', explanation: 'TRAMPA: Exige los 3 pasos: «información pública», «aprobación formal» y haber sido «publicado».' }
+      ],
+      fakeNames: ['Planes técnicos de manejo', 'Directrices de ordenación ambiental', 'Reglamentos de uso natural'],
+      siblings: ['9', '24', '25', '5']
+    },
+    {
+      id: '22bis', num: '22 bis', term: 'Introducción', cluster: 'especies',
+      def: 'Se refiere al movimiento por <b>acción humana, voluntaria o accidental</b>, de una especie <b>fuera</b> de su <b>área</b> de <b>distribución natural</b>. Este movimiento puede realizarse dentro de un país, o entre países o zonas fuera de la jurisdicción nacional.',
+      hook: 'Movimiento por acción humana (voluntaria o accidental) FUERA de su área de distribución natural.',
+      clozes: ['acción humana, voluntaria o accidental', 'fuera', 'distribución natural'],
+      traps: [
+        { fakeText: 'Movimiento exclusivamente voluntario y autorizado de ejemplares de especies autóctonas dentro de su área de distribución natural.', explanation: 'TRAMPA: La Introducción es «voluntaria o accidental» y siempre «FUERA de su área de distribución natural».' }
+      ],
+      fakeNames: ['Traslocación ecológica', 'Importación biológica', 'Desplazamiento foráneo'],
+      siblings: ['42', '13', '29ter', '11']
+    },
+    {
+      id: '23', num: '23', term: 'Material genético', cluster: 'recursos',
+      def: 'Todo material de origen vegetal, fúngico, animal, microbiano o de otro tipo que contenga unidades funcionales de la <b>herencia</b>.',
+      hook: 'Todo material (vegetal, fúngico, animal, microbiano...) que contenga unidades funcionales de la HERENCIA.',
+      clozes: ['vegetal, fúngico, animal, microbiano', 'unidades funcionales', 'herencia'],
+      traps: [
+        { fakeText: 'Todo material genético que posea un valor real o potencial para su explotación comercial.', explanation: 'TRAMPA: Cuando añade «de valor real o potencial» pasa a ser Recursos genéticos (29). Material genético (23) acaba en «unidades funcionales de la herencia».' }
+      ],
+      fakeNames: ['Patrimonio genético', 'Germoplasma biológico', 'Componente hereditario'],
+      siblings: ['29', '28', '43', '29bis']
+    },
+    {
+      id: '24', num: '24', term: 'Medidas compensatorias', cluster: 'conservacion',
+      def: 'Son medidas específicas <b>incluidas en un plan o proyecto</b>, que tienen por objeto compensar, <b>lo más exactamente posible</b>, su <b>impacto negativo</b> sobre la especie o el hábitat afectado.',
+      hook: 'Medidas específicas en un plan o proyecto para compensar LO MÁS EXACTAMENTE POSIBLE su impacto negativo.',
+      clozes: ['incluidas en un plan o proyecto', 'lo más exactamente posible', 'impacto negativo'],
+      traps: [
+        { fakeText: 'Sanciones económicas impuestas tras la ejecución de un proyecto para indemnizar daños imprevistos.', explanation: 'TRAMPA: Son «medidas específicas incluidas en un plan o proyecto» para compensar «lo más exactamente posible su impacto negativo».' }
+      ],
+      fakeNames: ['Medidas correctoras de impacto', 'Acciones reparadoras ambientales', 'Garantías de restauración'],
+      siblings: ['22', '32', '17', '5']
+    },
+    {
+      id: '25', num: '25', term: 'Objetivo de conservación de un lugar', cluster: 'estados',
+      def: 'Niveles poblacionales de las diferentes especies así como superficie y calidad de los hábitats que debe tener un espacio para <b>alcanzar</b> un <b>estado</b> de <b>conservación favorable</b>.',
+      hook: 'Niveles poblacionales + superficie y calidad de hábitats que debe tener un espacio para ALCANZAR estado favorable.',
+      clozes: ['Niveles poblacionales', 'superficie y calidad', 'alcanzar un estado de conservación favorable'],
+      traps: [
+        { fakeText: 'Situación derivada del conjunto de las influencias que actúan sobre el hábitat natural o seminatural y sobre las especies típicas asentadas en el mismo.', explanation: 'TRAMPA: Eso es Estado de conservación de un hábitat (14). El Objetivo de conservación de un lugar (25) habla de «niveles poblacionales... así como superficie y calidad de los hábitats que debe tener un espacio para alcanzar un estado de conservación favorable».' }
+      ],
+      fakeNames: ['Meta ecológica de un espacio', 'Umbral de conservación favorable', 'Estándar de calidad de un hábitat'],
+      siblings: ['14', '15', '16', '2']
+    },
+    {
+      id: '26', num: '26', term: 'Paisaje', cluster: 'gea_habitats',
+      def: 'Cualquier parte del territorio cuyo carácter sea el <b>resultado</b> de la <b>acción y la interacción de factores naturales y/o humanos</b>, tal como la percibe la población.',
+      hook: 'Parte del territorio resultado de acción e interacción de factores naturales y/o humanos, TAL COMO LA PERCIBE LA POBLACIÓN.',
+      clozes: ['acción y la interacción', 'factores naturales y/o humanos', 'percibe la población'],
+      traps: [
+        { fakeText: 'Cualquier parte del territorio de carácter exclusivamente natural e inalterado por la acción humana, declarada por su valor estético.', explanation: 'TRAMPA: Es resultado de «factores naturales Y/O HUMANOS, tal como la percibe la población».' }
+      ],
+      fakeNames: ['Paisaje natural protegido', 'Entorno paisajístico', 'Morfología territorial'],
+      siblings: ['27', '19', '1', '20']
+    },
+    {
+      id: '27', num: '27', term: 'Patrimonio Natural', cluster: 'gea_habitats',
+      def: 'Conjunto de bienes y recursos de la naturaleza fuente de diversidad biológica y geológica, que tiene un <b>valor relevante medioambiental, paisajístico, científico o cultural</b>.',
+      hook: 'Bienes y recursos de la naturaleza (diversidad biológica y geológica) con valor relevante medioambiental, paisajístico, científico o cultural.',
+      clozes: ['diversidad biológica y geológica', 'medioambiental, paisajístico, científico o cultural'],
+      traps: [
+        { fakeText: 'Conjunto de recursos naturales geológicos de valor científico, cultural y/o educativo que permiten conocer el origen y evolución de la Tierra.', explanation: 'TRAMPA: Eso es Patrimonio Geológico (38). El Patrimonio Natural (27) abarca «diversidad biológica Y geológica» y valor «medioambiental, paisajístico, científico o cultural» (no dice educativo).' }
+      ],
+      fakeNames: ['Capital natural', 'Acervo ambiental', 'Patrimonio biosférico'],
+      siblings: ['38', '30', '28', '3']
+    },
+    {
+      id: '28', num: '28', term: 'Recursos biológicos', cluster: 'recursos',
+      def: 'Los recursos <b>genéticos</b>, los organismos o partes de ellos, las poblaciones, o cualquier otro tipo del componente <b>biótico</b> de los ecosistemas de <b>valor o utilidad real o potencial</b> para la humanidad.',
+      hook: 'Componente BIÓTICO de los ecosistemas (recursos genéticos, organismos, poblaciones...) de valor o utilidad real o potencial.',
+      clozes: ['genéticos', 'biótico', 'valor o utilidad real o potencial'],
+      traps: [
+        { fakeText: 'Todo componente de la naturaleza, biótico o abiótico (incluidos minerales, rocas e hidrocarburos), de valor o utilidad real o potencial para la humanidad.', explanation: 'TRAMPA: Cuando incluye lo abiótico (minerales, hidrocarburos, aguas...) es Recursos NATURALES (30). Recursos biológicos (28) se limita al «componente BIÓTICO de los ecosistemas».' }
+      ],
+      fakeNames: ['Recursos bióticos', 'Bienes biológicos', 'Activos ecosistémicos'],
+      siblings: ['29', '30', '23', '29bis']
+    },
+    {
+      id: '29', num: '29', term: 'Recursos genéticos', cluster: 'recursos',
+      def: 'Material genético de valor <b>real o potencial</b>.',
+      hook: 'Definición ultracorta (6 palabras): Material genético de valor REAL O POTENCIAL.',
+      clozes: ['Material genético', 'real o potencial'],
+      traps: [
+        { fakeText: 'Todo material de origen vegetal, fúngico, animal o microbiano que contenga unidades funcionales de la herencia.', explanation: 'TRAMPA: Esa es la definición de Material genético (23). Recursos genéticos (29) es exactamente «Material genético de valor real o potencial».' }
+      ],
+      fakeNames: ['Material genético útil', 'Reserva genética', 'Caudal hereditario'],
+      siblings: ['23', '28', '43', '29bis']
+    },
+    {
+      id: '29bis', num: '29 bis', term: 'Recursos zoogenéticos para la agricultura y la alimentación', cluster: 'recursos',
+      def: 'Aquellas especies de animales que se <b>utilizan</b>, o <b>se pueden utilizar</b>, para la producción de <b>alimentos</b>, la <b>agricultura</b>, la <b>ganadería</b> o la <b>alimentación</b> y que sean <b>declaradas</b> como tal, <b>mediante orden</b>, por el Ministerio de <b>Agricultura</b> y Pesca, Alimentación y Medio Ambiente o que tengan reconocida dicha consideración por <b>convenios</b> u <b>organismos internacionales</b> de carácter oficial.',
+      hook: 'Especies animales para alimentos/agricultura/ganadería declaradas MEDIANTE ORDEN por el Ministerio de Agricultura (o convenios internacionales).',
+      clozes: ['producción de alimentos', 'mediante orden', 'convenios u organismos internacionales'],
+      traps: [
+        { fakeText: 'Aquellas especies de animales utilizadas para la ganadería que sean declaradas como tal mediante ley estatal o real decreto del Consejo de Ministros.', explanation: 'TRAMPA DE RANGO NORMATIVO: Se declaran «mediante ORDEN» por el Ministerio de Agricultura (o convenios/organismos internacionales oficiales), NO por ley estatal.' }
+      ],
+      fakeNames: ['Recursos ganaderos estratégicos', 'Patrimonio zootécnico', 'Recursos biológicos agroalimentarios'],
+      siblings: ['28', '29', '30', '43']
+    },
+    {
+      id: '29ter', num: '29 ter', term: 'Especie naturalizada', cluster: 'especies',
+      def: 'Especie exótica <b>establecida</b> en el ecosistema con carácter <b>permanente, introducida legalmente antes</b> de la entrada en vigor de la presente Ley, y respecto de la que no existan indicios ni evidencias de efectos significativos en el medio natural en que habita, presentando además un <b>especial interés, social o económico</b>.',
+      hook: 'Exótica permanente + introducida legalmente ANTES de la Ley + SIN efectos significativos + especial interés SOCIAL O ECONÓMICO.',
+      clozes: ['carácter permanente', 'introducida legalmente antes', 'especial interés, social o económico'],
+      traps: [
+        { fakeText: 'Especie exótica establecida con carácter permanente, introducida legalmente antes o después de la entrada en vigor de la presente Ley, con especial interés ecológico.', explanation: 'TRAMPA DOBLE: Debe haber sido introducida legalmente «ANTES de la entrada en vigor de la presente Ley» y presentar «especial interés, SOCIAL O ECONÓMICO».' }
+      ],
+      fakeNames: ['Especie exótica asimilada', 'Especie alóctona estabilizada', 'Especie exótica tradicional'],
+      siblings: ['13', '11', '22bis', '35']
+    },
+    {
+      id: '30', num: '30', term: 'Recursos naturales', cluster: 'recursos',
+      def: 'Todo componente de la <b>naturaleza</b>, susceptible de ser <b>aprovechado</b> por el ser humano para la satisfacción de sus <b>necesidades</b> y que tenga un <b>valor actual o potencial</b>, tales como: el paisaje natural, las aguas, superficiales y subterráneas; el suelo, subsuelo y las tierras por su capacidad de uso mayor: agrícolas, pecuarias, forestales, cinegética y de protección; la biodiversidad; la geodiversidad; los recursos genéticos, y los ecosistemas que dan soporte a la vida; los hidrocarburos; los recursos hidroenergéticos, eólicos, solares, geotérmicos y similares; la atmósfera y el espectro radioeléctrico, los minerales, las rocas y otros recursos geológicos renovables y no renovables.',
+      hook: 'Todo componente de la naturaleza aprovechable para necesidades humanas con valor ACTUAL O POTENCIAL (incluye aguas, hidrocarburos, espectro radioeléctrico, etc.).',
+      clozes: ['aprovechado por el ser humano', 'necesidades', 'valor actual o potencial'],
+      traps: [
+        { fakeText: 'Todo componente exclusivamente renovable y biótico de la naturaleza susceptible de ser aprovechado por el ser humano, excluyendo los hidrocarburos y el espectro radioeléctrico.', explanation: 'TRAMPA: Recursos naturales (30) incluye explícitamente «los hidrocarburos», «la atmósfera y el espectro radioeléctrico» y «recursos geológicos renovables y no renovables».' }
+      ],
+      fakeNames: ['Bienes ambientales', 'Recursos ecosistémicos', 'Patrimonio productivo natural'],
+      siblings: ['28', '27', '29', '36']
+    },
+    {
+      id: '31', num: '31', term: 'Reservas de Biosfera', cluster: 'territorio',
+      def: 'Territorios <b>declarados</b> como tales en el seno del <b>Programa MaB</b>, de la <b>UNESCO</b>, al que está adherido el Reino de España, de gestión integrada, participativa y sostenible del patrimonio y de los recursos naturales.',
+      hook: 'Territorios declarados en el seno del Programa MaB de la UNESCO (gestión integrada, participativa y sostenible).',
+      clozes: ['Programa MaB', 'UNESCO', 'integrada, participativa y sostenible'],
+      traps: [
+        { fakeText: 'Territorios declarados como tales por el Consejo de Europa dentro de la Red Ecológica Europea Natura 2000.', explanation: 'TRAMPA: Se declaran en el seno del «Programa MaB, de la UNESCO».' }
+      ],
+      fakeNames: ['Reservas Biogenéticas UNESCO', 'Espacios MaB Protegidos', 'Reservas Naturales Internacionales'],
+      siblings: ['19', '8', '9', '22']
+    },
+    {
+      id: '32', num: '32', term: 'Restauración de ecosistemas', cluster: 'conservacion',
+      def: 'Conjunto de <b>actividades</b> orientadas a <b>restablecer</b> la funcionalidad y capacidad de evolución de los ecosistemas hacia un <b>estado maduro</b>.',
+      hook: 'Actividades orientadas a restablecer la funcionalidad y capacidad de evolución hacia un ESTADO MADURO.',
+      clozes: ['actividades', 'restablecer la funcionalidad', 'estado maduro'],
+      traps: [
+        { fakeText: 'Mantenimiento o restablecimiento en estado favorable del patrimonio natural y la biodiversidad y de los hábitats naturales y seminaturales.', explanation: 'TRAMPA: Eso es Conservación (5). Restauración de ecosistemas (32) tiene el sello inconfundible: «restablecer la funcionalidad y capacidad de evolución de los ecosistemas hacia un ESTADO MADURO».' }
+      ],
+      fakeNames: ['Rehabilitación ecológica', 'Regeneración de hábitats', 'Recuperación ambiental'],
+      siblings: ['5', '6', '24', '10']
+    },
+    {
+      id: '33', num: '33', term: 'Taxón', cluster: 'especies', official: 'OFICIAL 2021-1',
+      def: '<b>Grupo</b> de organismos con <b>características comunes</b>.',
+      hook: 'La más corta del tema (6 palabras): Grupo de organismos con características comunes.',
+      clozes: ['Grupo de organismos', 'características comunes'],
+      traps: [
+        { fakeText: 'Grupo de organismos que habitan un mismo biotopo aunque carezcan de características comunes.', explanation: 'TRAMPA: Taxón es literalmente «grupo de organismos con características comunes».' }
+      ],
+      fakeNames: ['Clado biológico', 'Categoría taxonómica', 'Población biológica'],
+      siblings: ['34', '35', '11', '23']
+    },
+    {
+      id: '34', num: '34', term: 'Taxón extinguido', cluster: 'especies',
+      def: 'Taxón autóctono <b>desaparecido</b> en el pasado de su <b>área</b> de distribución natural.',
+      hook: 'Taxón autóctono desaparecido en el pasado de su área de distribución natural (gemelo exacto de la 12 pero diciendo taxón).',
+      clozes: ['Taxón autóctono', 'desaparecido', 'distribución natural'],
+      traps: [
+        { fakeText: 'Taxón exótico o autóctono que ya no cuenta con ejemplares en cautividad ni fuera de su área de distribución.', explanation: 'TRAMPA: Especifica «taxón AUTÓCTONO desaparecido en el pasado de su área de distribución natural».' }
+      ],
+      fakeNames: ['Taxón desaparecido', 'Estirpe extinguida', 'Taxón extinto en estado silvestre'],
+      siblings: ['12', '35', '33', '11']
+    },
+    {
+      id: '35', num: '35', term: 'Taxones autóctonos', cluster: 'especies',
+      def: 'Taxones <b>existentes</b> de forma <b>natural</b> en un lugar determinado, <b>incluidos</b> los <b>extinguidos</b>, en su caso.',
+      hook: '¡OJO TRAMPA! Existentes de forma natural en un lugar determinado, INCLUIDOS LOS EXTINGUIDOS, en su caso.',
+      clozes: ['existentes de forma natural', 'incluidos', 'extinguidos'],
+      traps: [
+        { fakeText: 'Taxones existentes actualmente de forma natural en un lugar determinado, excluidos los extinguidos en el pasado.', explanation: 'TRAMPA FAVORITA DE TEST: Taxones autóctonos dice expresamente «INCLUIDOS los extinguidos, en su caso».' }
+      ],
+      fakeNames: ['Taxones nativos actuales', 'Taxones endémicos', 'Fauna y flora autóctona'],
+      siblings: ['11', '34', '12', '33']
+    },
+    {
+      id: '36', num: '36', term: 'Uso sostenible del patrimonio natural', cluster: 'conservacion',
+      def: '<b>Utilización</b> de sus componentes de un modo y a un ritmo que no ocasione su reducción a <b>largo plazo</b>, con lo cual se mantienen las posibilidades de su aportación a la <b>satisfacción</b> de las necesidades de las <b>generaciones actuales y futuras</b>.',
+      hook: 'Utilización a un modo y ritmo que no ocasione reducción a largo plazo + necesidades de generaciones actuales y futuras.',
+      clozes: ['Utilización', 'largo plazo', 'generaciones actuales y futuras'],
+      traps: [
+        { fakeText: 'Prohibición absoluta de utilizar los componentes del patrimonio natural para garantizar su preservación intacta para las generaciones futuras.', explanation: 'TRAMPA: No es prohibición, es «utilización de sus componentes de un modo y a un ritmo que no ocasione su reducción a largo plazo».' }
+      ],
+      fakeNames: ['Desarrollo ambiental sostenible', 'Aprovechamiento racional ecológico', 'Explotación equilibrada'],
+      siblings: ['5', '30', '27', '43']
+    },
+    {
+      id: '37', num: '37', term: 'Entidad de custodia del territorio', cluster: 'territorio',
+      def: 'Organización pública o privada, <b>sin ánimo de lucro</b>, que lleva a cabo iniciativas que incluyan la realización de acuerdos de custodia del territorio para la conservación del patrimonio natural y la biodiversidad.',
+      hook: 'Organización PÚBLICA O PRIVADA, SIN ÁNIMO DE LUCRO, que realiza acuerdos de custodia.',
+      clozes: ['pública o privada', 'sin ánimo de lucro', 'acuerdos de custodia'],
+      traps: [
+        { fakeText: 'Organización exclusivamente privada, con o sin ánimo de lucro, que lleva a cabo acuerdos de custodia del territorio.', explanation: 'TRAMPA DOBLE: Puede ser «pública o privada» y SIEMPRE «SIN ánimo de lucro».' },
+        { fakeText: 'Conjunto de estrategias o técnicas jurídicas a través de las cuales se implican a los propietarios y usuarios del territorio.', explanation: 'TRAMPA: Eso es Custodia del territorio (9), no Entidad de custodia (37).' }
+      ],
+      fakeNames: ['Asociación de custodia ambiental', 'Fundación de tutela territorial', 'Agente de custodia del territorio'],
+      siblings: ['9', '41', '22', '31']
+    },
+    {
+      id: '38', num: '38', term: 'Patrimonio Geológico', cluster: 'gea_habitats',
+      def: 'Conjunto de recursos naturales geológicos de <b>valor científico, cultural y/o educativo</b>, ya sean formaciones y estructuras geológicas, formas del terreno, minerales, rocas, meteoritos, fósiles, suelos y otras manifestaciones geológicas que permiten conocer, estudiar e interpretar: a) el <b>origen y evolución de la Tierra</b>, b) los <b>procesos</b> que la han modelado, c) los <b>climas y paisajes del pasado y presente</b> y d) el <b>origen y evolución de la vida</b>.',
+      hook: 'Recursos geológicos de valor científico, cultural y/o EDUCATIVO (incluye meteoritos) + permite conocer a,b,c,d (incluido origen de la vida).',
+      clozes: ['valor científico, cultural y/o educativo', 'origen y evolución de la Tierra', 'origen y evolución de la vida'],
+      traps: [
+        { fakeText: 'Variedad de elementos geológicos, incluidos rocas, minerales y fósiles, que son el producto y registro de la evolución de la Tierra, sin incluir el estudio del origen de la vida.', explanation: 'TRAMPA: Empieza con la frase de Geodiversidad (18) y niega el apartado d) de Patrimonio Geológico («el origen y evolución de la vida»).' }
+      ],
+      fakeNames: ['Inventario geológico nacional', 'Patrimonio litológico y paleontológico', 'Acervo geológico'],
+      siblings: ['18', '19', '27', '30']
+    },
+    {
+      id: '39', num: '39', term: 'Medio marino', cluster: 'gea_habitats',
+      def: 'Aguas marinas sometidas a <b>soberanía o jurisdicción española</b>, y su <b>lecho, subsuelo y recursos naturales</b>.',
+      hook: 'Aguas marinas bajo soberanía o jurisdicción española + su lecho, subsuelo y recursos naturales.',
+      clozes: ['soberanía o jurisdicción española', 'lecho, subsuelo y recursos naturales'],
+      traps: [
+        { fakeText: 'Exclusivamente la columna de agua del mar territorial español, excluyendo el lecho, el subsuelo y la zona económica exclusiva.', explanation: 'TRAMPA: Incluye las aguas sometidas a «soberanía o jurisdicción española, y su lecho, subsuelo y recursos naturales».' }
+      ],
+      fakeNames: ['Dominio público marítimo-terrestre', 'Hábitat oceánico español', 'Demarcación marina nacional'],
+      siblings: ['20', '30', '46']
+    },
+    {
+      id: '40', num: '40', term: 'Situación crítica de una especie', cluster: 'estados', official: 'OFICIAL 2024-2',
+      def: 'Situación en que una especie, de acuerdo con un <b>análisis</b> de viabilidad demográfico o de hábitat, o un <b>diagnóstico</b> realizado con base en la mejor información científica disponible, se encuentra en <b>riesgo inminente de extinción</b> en estado silvestre.',
+      hook: 'Análisis de viabilidad o diagnóstico científico → RIESGO INMINENTE DE EXTINCIÓN en estado silvestre.',
+      clozes: ['análisis de viabilidad', 'diagnóstico', 'riesgo inminente de extinción'],
+      traps: [
+        { fakeText: 'Aquellos sectores incluidos en el área de distribución que contengan hábitats esenciales para evitar la extinción de la especie.', explanation: 'TRAMPA: Esos sectores son el Área crítica para una especie (2). La Situación crítica (40) es encontrarse en «riesgo inminente de extinción en estado silvestre».' }
+      ],
+      fakeNames: ['Situación límite de una especie', 'Situación de riesgo urgente de una especie', 'Situación de riesgo de extinción de una especie'],
+      siblings: ['2', '16', '12', '14']
+    },
+    {
+      id: '41', num: '41', term: 'Jardín botánico', cluster: 'territorio',
+      def: '<b>Institución</b> (pública, privada o mixta) o <b>instalación</b> de <b>conservación ex situ</b>, que exhibe colecciones científicas de <b>plantas vivas</b>, mantenidas, cultivadas y propagadas para el logro simultáneo de objetivos de estudio, divulgación, enseñanza y conservación de la diversidad vegetal.',
+      hook: 'Institución (pública, privada o mixta) o instalación de CONSERVACIÓN EX SITU de colecciones científicas de PLANTAS VIVAS.',
+      clozes: ['pública, privada o mixta', 'conservación ex situ', 'plantas vivas'],
+      traps: [
+        { fakeText: 'Instalación exclusivamente pública de conservación in situ que exhibe colecciones de plantas vivas o herborizadas.', explanation: 'TRAMPA: Es «pública, privada o mixta», de «conservación EX SITU» y de «plantas VIVAS».' }
+      ],
+      fakeNames: ['Reserva botánica', 'Centro de propagación vegetal', 'Arboreto científico'],
+      siblings: ['7', '6', '37', '31']
+    },
+    {
+      id: '42', num: '42', term: 'Suelta', cluster: 'especies',
+      def: '<b>Liberación</b> de ejemplares de especies en el <b>medio natural</b>.',
+      hook: 'Cortísima (8 palabras): Liberación de ejemplares de especies en el medio natural.',
+      clozes: ['Liberación', 'ejemplares de especies', 'medio natural'],
+      traps: [
+        { fakeText: 'Movimiento por acción humana, voluntaria o accidental, de una especie fuera de su área de distribución natural.', explanation: 'TRAMPA: Eso es Introducción (22 bis). Suelta (42) es simplemente «Liberación de ejemplares de especies en el medio natural».' }
+      ],
+      fakeNames: ['Repoblación cinegética', 'Reintroducción silvestre', 'Liberación ecológica'],
+      siblings: ['22bis', '13', '11']
+    },
+    {
+      id: '43', num: '43', term: 'Utilización de recursos genéticos', cluster: 'recursos',
+      def: 'La realización de actividades de <b>investigación y desarrollo</b> sobre la composición <b>genética y/o bioquímica</b> de recursos genéticos, incluso mediante la aplicación de <b>biotecnología</b>.',
+      hook: 'Actividades de I+D (investigación y desarrollo) sobre composición genética y/o bioquímica, incluso con biotecnología.',
+      clozes: ['investigación y desarrollo', 'genética y/o bioquímica', 'biotecnología'],
+      traps: [
+        { fakeText: 'La compraventa o comercialización de semillas, animales y plantas sin realizar actividades de investigación y desarrollo sobre su composición genética.', explanation: 'TRAMPA: La ley la define específicamente como «la realización de actividades de investigación y desarrollo sobre la composición genética y/o bioquímica... incluso mediante biotecnología».' }
+      ],
+      fakeNames: ['Bioprospección genética', 'Aprovechamiento biotecnológico', 'Explotación de material genético'],
+      siblings: ['29', '23', '28', '29bis']
+    },
+    {
+      id: '44', num: 'Pág. 3 · A', term: 'Declaración de utilidad pública o interés social (Actividades)', cluster: 'funcion_social',
+      def: 'Las <b>actividades</b> encaminadas a la consecución de los fines de esta ley podrán ser <b>declaradas de utilidad pública o interés social</b>, a todos los efectos y en particular a los <b>expropiatorios</b>, respecto de los bienes o derechos que pudieran resultar afectados.',
+      hook: 'Actividades para fines de la ley → Utilidad pública o interés social (en particular a efectos EXPROPIATORIOS).',
+      clozes: ['utilidad pública o interés social', 'expropiatorios', 'bienes o derechos'],
+      traps: [
+        { fakeText: 'Las actividades encaminadas a los fines de esta ley podrán ser declaradas de utilidad pública a todos los efectos, salvo a los efectos expropiatorios.', explanation: 'TRAMPA: Dice justo lo contrario: «a todos los efectos y EN PARTICULAR a los expropiatorios».' }
+      ],
+      fakeNames: ['Declaración de prioridad ambiental', 'Afección demanial ecológica', 'Calificación de servicio público ambiental'],
+      siblings: ['45', '46', '9']
+    },
+    {
+      id: '45', num: 'Pág. 3 · B', term: 'Obras necesarias declaradas de Interés General del Estado', cluster: 'funcion_social',
+      def: 'Las <b>obras necesarias</b> para la conservación y restauración de los espacios protegidos, la conservación de especies amenazadas o la conservación de hábitats en peligro de desaparición (especialmente para hacer frente a <b>fenómenos catastróficos o excepcionales</b>), podrán ser declaradas por parte del <b>ESTADO como de interés general</b>, en el ámbito de sus competencias, <b>previo informe de las COMUNIDADES AUTÓNOMAS</b> afectadas. Dicha declaración se realizará <b>mediante ley estatal</b>.',
+      hook: 'Obras necesarias (esp. fenómenos catastróficos) → ESTADO declara de INTERÉS GENERAL + previo informe CCAA + mediante LEY ESTATAL.',
+      clozes: ['fenómenos catastróficos o excepcionales', 'previo informe de las COMUNIDADES AUTÓNOMAS', 'mediante ley estatal'],
+      traps: [
+        { fakeText: 'Las obras necesarias podrán ser declaradas por el Estado como de interés general, previa autorización vinculante de las Comunidades Autónomas, mediante Real Decreto del Consejo de Ministros.', explanation: 'TRAMPA DOBLE DE EXAMEN: Es «previo INFORME» de las CCAA afectadas y se realiza «mediante LEY ESTATAL» (no Real Decreto).' }
+      ],
+      fakeNames: ['Obras de emergencia ecológica nacional', 'Actuaciones de utilidad pública estatal', 'Proyectos de restauración prioritaria'],
+      siblings: ['44', '46', '24']
+    },
+    {
+      id: '46', num: 'Pág. 3 · C', term: 'Deberes de los poderes públicos en materia de biodiversidad', cluster: 'funcion_social',
+      def: '<b>Velar por la conservación y la utilización racional del patrimonio natural en todo el territorio nacional</b>, que incluye su medio marino así como en la <b>zona económica exclusiva</b> y en la <b>plataforma continental</b>, con independencia de su titularidad o régimen jurídico, teniendo en cuenta <b>especialmente</b> los tipos de hábitats naturales y las especies silvestres en régimen de <b>protección especial</b>.',
+      hook: 'Todo el territorio nacional (incluye medio marino + ZONA ECONÓMICA EXCLUSIVA + PLATAFORMA CONTINENTAL), esp. hábitats y especies en PROTECCIÓN ESPECIAL.',
+      clozes: ['zona económica exclusiva', 'plataforma continental', 'protección especial'],
+      traps: [
+        { fakeText: 'Velar por la conservación del patrimonio natural únicamente en los terrenos de titularidad pública estatal, excluyendo la zona económica exclusiva y la plataforma continental.', explanation: 'TRAMPA: Abarca todo el territorio nacional, medio marino, «zona económica exclusiva y plataforma continental, CON INDEPENDENCIA de su titularidad o régimen jurídico».' }
+      ],
+      fakeNames: ['Principios rectores de la custodia pública', 'Obligaciones de soberanía ambiental', 'Mandato público de preservación'],
+      siblings: ['39', '44', '45', '36']
+    }
+  ];
+
+  const OFFICIAL_QUESTIONS = [
+    {
+      exam: 'OFICIAL 2025 (Q50)', defId: '19',
+      stem: 'Cuando hablamos de territorios delimitados que presentan formas geológicas únicas, de especial importancia científica, singularidad o belleza y que son representativos de la historia evolutiva geológica y de los eventos y procesos que las han formado, nos referimos a:',
+      options: ['Las reservas geológicas.', 'Los geoparques o parques geológicos.', 'Las áreas geológicas protegidas.', 'Los paisajes geológicos.'],
+      correctIndex: 1,
+      note: 'Fíjate cómo el tribunal inventó 3 nombres falsos con la palabra "geológico/a". Clave: «Geoparques o parques geológicos».'
+    },
+    {
+      exam: 'OFICIAL 2024-2 (Q54)', defId: '40',
+      stem: 'Se entenderá por __________, la situación en que una especie, de acuerdo con un análisis de viabilidad demográfico o de hábitat, o un diagnóstico realizado con base en la mejor información científica disponible, se encuentra en riesgo inminente de extinción en estado silvestre.',
+      options: ['Situación de riesgo urgente de una especie.', 'Situación límite de una especie.', 'Situación crítica de una especie.', 'Situación de riesgo de extinción de una especie.'],
+      correctIndex: 2,
+      note: 'Trampa de nombre exacto: las 4 opciones suenan lógicas, pero la ley la llama «Situación crítica de una especie».'
+    },
+    {
+      exam: 'OFICIAL 2023-2 (Q57)', defId: '14',
+      stem: 'Se entenderá por __________, la situación derivada del conjunto de las influencias que actúan sobre el hábitat natural o seminatural de que se trate y sobre las especies típicas asentadas en el mismo y que pueden afectar a largo plazo a su distribución natural, su estructura y funciones, así como a la supervivencia de sus especies típicas en el territorio.',
+      options: ['Estado de conservación favorable de una especie.', 'Estado de conservación de un hábitat.', 'Estado de conservación de un ecosistema.', 'Estado de conservación favorable de un hábitat natural.'],
+      correctIndex: 1,
+      note: 'Duelo de gemelos clásico: como habla del «conjunto de las influencias» (sin decir que sea estable o se amplíe), es «Estado de conservación de un hábitat» (a secas).'
+    },
+    {
+      exam: 'OFICIAL 2021-2 (Q70)', defId: '10',
+      stem: 'Se entenderá por __________ un complejo dinámico de comunidades vegetales, animales y de microorganismos y su medio no viviente que interactúan como una unidad funcional.',
+      options: ['Geodiversidad.', 'Hábitat de una especie.', 'Ecosistema.', 'Hábitat natural.'],
+      correctIndex: 2,
+      note: 'Gatillo infalible: «complejo dinámico... medio no viviente... unidad funcional» = Ecosistema.'
+    },
+    {
+      exam: 'OFICIAL 2021-1 (Q67)', defId: '33',
+      stem: 'A efectos de esta ley, ¿qué se entenderá por taxón?',
+      options: [
+        'Un grupo de organismos con características comunes.',
+        'Los recursos genéticos o cualquier otro tipo del componente biótico de los ecosistemas de valor o utilidad real o potencial para la humanidad.',
+        'El material genético de valor real o potencial.',
+        'Todo material de origen vegetal, fúngico, animal, microbiano o de otro tipo que contenga unidades funcionales de la herencia.'
+      ],
+      correctIndex: 0,
+      note: 'Pregunta inversa (Término → Definición): las otras 3 opciones son las definiciones literales de Recursos biológicos (28), Recursos genéticos (29) y Material genético (23).'
+    },
+    {
+      exam: 'OFICIAL 2021-1 (Q68)', defId: '6',
+      stem: 'Se entenderá por __________, la conservación de los ecosistemas y los hábitats naturales y seminaturales, el mantenimiento y recuperación de poblaciones viables de especies silvestres en sus entornos naturales:',
+      options: ['Conservación ex situ.', 'Custodia del territorio.', 'Conservación in situ.', 'Conservación.'],
+      correctIndex: 2,
+      note: 'Observa que el tribunal recortó la segunda mitad de la definición (la parte de especies domesticadas y cultivadas), pero dejó «en sus entornos naturales» → Conservación in situ.'
+    },
+    {
+      exam: 'OFICIAL 2020-2 (Q65)', defId: '8',
+      stem: '¿Qué se entiende por un territorio de extensión y configuración variables que, debido a su disposición y a su estado de conservación, conecta funcionalmente espacios naturales de singular relevancia para la flora o la fauna silvestres separados entre sí, permitiendo, entre otros procesos ecológicos, el intercambio genético entre poblaciones de especies silvestres o la migración de especímenes de esas especies?',
+      options: ['Corredor ecológico.', 'Área crítica para una especie.', 'Ecosistema.', 'Hábitat natural.'],
+      correctIndex: 0,
+      note: 'Gatillo: «conecta funcionalmente espacios naturales... separados entre sí» = Corredor ecológico.'
+    }
+  ];
+
+  const FSRS_W = [
+    0.4072, 1.1829, 3.1262, 15.4722,
+    7.2102, 0.5316, 1.0651, 0.0234,
+    1.616, 0.1544, 1.0824,
+    1.9813, 0.0953, 0.2975, 2.2042,
+    0.2407, 2.9466
+  ];
+
+  const STORAGE_KEY = 'procivil_t16_2_fsrs_v1';
+
+  let appState = {
+    timeOffsetDays: 0,
+    targetRetention: 0.90,
+    includePage3: true,
+    streak: 0,
+    bestStreak: 0,
+    totalReviews: 0,
+    cards: {},
+    confusions: {}
+  };
+
+  function getNowMs() {
+    return Date.now() + (appState.timeOffsetDays * 86400 * 1000);
+  }
+
+  function createEmptyCard(id) {
+    return { id, state: 'new', S: 0, D: 5.0, lastReview: null, due: null, reps: 0, lapses: 0, lastGrade: null };
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        appState = { ...appState, ...parsed };
+      }
+    } catch (e) {}
+    DEFINITIONS.forEach(d => {
+      if (!appState.cards[d.id]) appState.cards[d.id] = createEmptyCard(d.id);
+    });
+  }
+
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+    } catch (e) {}
+    updateTopKPIs();
+  }
+
+  function getRetrievability(card, nowMs = getNowMs()) {
+    if (!card || card.state === 'new' || !card.lastReview || card.S <= 0) return 0;
+    const elapsedDays = Math.max(0, (nowMs - card.lastReview) / (86400 * 1000));
+    const r = Math.pow(1 + (19 / 81) * (elapsedDays / card.S), -0.5);
+    return Math.max(0.01, Math.min(1, r));
+  }
+
+  function stabilityToIntervalDays(S, targetR = appState.targetRetention) {
+    const factor = (81 / 19) * (Math.pow(targetR, -2) - 1);
+    return Math.max(0.05, S * factor);
+  }
+
+  function clamp(val, min, max) {
+    return Math.max(min, Math.min(max, val));
+  }
+
+  function previewFSRS(card, grade, nowMs = getNowMs()) {
+    const c = { ...card };
+    const isNew = c.state === 'new' || !c.lastReview || c.S <= 0;
+    let nextS, nextD;
+    const d0_easy = FSRS_W[4] - Math.exp(FSRS_W[5] * (4 - 1)) + 1;
+
+    if (isNew) {
+      const initialS = [0, 0.25, 1.1, 3.0, 7.5];
+      nextS = initialS[grade];
+      nextD = clamp(FSRS_W[4] - Math.exp(FSRS_W[5] * (grade - 1)) + 1, 1, 10);
+    } else {
+      const elapsedDays = Math.max(0.01, (nowMs - c.lastReview) / (86400 * 1000));
+      const R = getRetrievability(c, nowMs);
+      const deltaD = -FSRS_W[6] * (grade - 3);
+      const dPrime = c.D + deltaD * ((10 - c.D) / 9);
+      nextD = clamp(FSRS_W[7] * d0_easy + (1 - FSRS_W[7]) * dPrime, 1, 10);
+
+      if (grade === 1) {
+        nextS = Math.max(
+          0.2,
+          FSRS_W[11] * Math.pow(nextD, -FSRS_W[12]) * (Math.pow(c.S + 1, FSRS_W[13]) - 1) * Math.exp(FSRS_W[14] * (1 - R))
+        );
+        nextS = Math.min(nextS, c.S * 0.65);
+      } else {
+        const hardPenalty = grade === 2 ? FSRS_W[15] : 1;
+        const easyBonus = grade === 4 ? FSRS_W[16] : 1;
+        const sameDayFactor = elapsedDays < 0.35 ? 0.45 : 1.0;
+        const inc = Math.exp(FSRS_W[8]) * (11 - nextD) * Math.pow(c.S, -FSRS_W[9]) * (Math.exp(FSRS_W[10] * (1 - Math.min(0.95, R))) - 1) * hardPenalty * easyBonus * sameDayFactor;
+        nextS = clamp(c.S * (1 + Math.max(0.12, inc)), 0.5, 365);
+      }
+    }
+
+    const intervalDays = grade === 1 ? 0.02 : stabilityToIntervalDays(nextS, appState.targetRetention);
+    return {
+      S: Number(nextS.toFixed(2)),
+      D: Number(nextD.toFixed(2)),
+      intervalDays: Number(intervalDays.toFixed(2)),
+      due: nowMs + intervalDays * 86400 * 1000,
+      state: grade === 1 ? (isNew ? 'learning' : 'relearning') : 'review'
+    };
+  }
+
+  function applyFSRSGrade(defId, grade) {
+    const card = appState.cards[defId] || createEmptyCard(defId);
+    const nowMs = getNowMs();
+    const res = previewFSRS(card, grade, nowMs);
+    card.S = res.S;
+    card.D = res.D;
+    card.state = res.state;
+    card.lastReview = nowMs;
+    card.due = res.due;
+    card.reps = (card.reps || 0) + 1;
+    if (grade === 1) card.lapses = (card.lapses || 0) + 1;
+    card.lastGrade = grade;
+    appState.cards[defId] = card;
+    appState.totalReviews = (appState.totalReviews || 0) + 1;
+    if (grade >= 2) {
+      appState.streak = (appState.streak || 0) + 1;
+      if (appState.streak > (appState.bestStreak || 0)) appState.bestStreak = appState.streak;
+    } else {
+      appState.streak = 0;
+    }
+    saveState();
+    return res;
+  }
+
+  function recordConfusion(defIdA, defIdB) {
+    if (!defIdA || !defIdB || defIdA === defIdB) return;
+    const pair = [defIdA, defIdB].sort().join('__');
+    appState.confusions[pair] = (appState.confusions[pair] || 0) + 1;
+    saveState();
+  }
+
+  function getActiveDefinitions() {
+    return DEFINITIONS.filter(d => appState.includePage3 || !d.id.match(/^(44|45|46)$/));
+  }
+
+  function getDueDefinitions() {
+    const nowMs = getNowMs();
+    return getActiveDefinitions().filter(d => {
+      const c = appState.cards[d.id];
+      if (!c || c.state === 'new') return true;
+      const r = getRetrievability(c, nowMs);
+      return r <= appState.targetRetention + 0.005 || (c.due && c.due <= nowMs);
+    });
+  }
+
+  function formatInterval(days) {
+    if (days < 0.05) return '10 min (Sesión)';
+    if (days < 1) return Math.round(days * 24) + ' h';
+    if (days < 10) return days.toFixed(1) + ' d';
+    return Math.round(days) + ' d';
+  }
+  </script>
+  <script>
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function stripHtml(html) {
+    return html.replace(/<[^>]*>/g, '');
+  }
+
+  function getDefById(id) {
+    return DEFINITIONS.find(d => d.id === id);
+  }
+
+  function pickConfusableSiblings(def, count = 3) {
+    const active = getActiveDefinitions().filter(d => d.id !== def.id);
+    const userConfusedIds = Object.keys(appState.confusions || {})
+      .filter(k => k.split('__').includes(def.id))
+      .sort((a, b) => appState.confusions[b] - appState.confusions[a])
+      .map(k => k.split('__').find(x => x !== def.id));
+
+    const declaredIds = def.siblings || [];
+    const clusterIds = active.filter(d => d.cluster === def.cluster).map(d => d.id);
+    const orderedUniqueIds = [...new Set([...userConfusedIds, ...declaredIds, ...shuffle(clusterIds)])];
+
+    const result = [];
+    for (const id of orderedUniqueIds) {
+      const found = active.find(d => d.id === id);
+      if (found && !result.includes(found)) {
+        result.push(found);
+        if (result.length >= count) break;
+      }
+    }
+    if (result.length < count) {
+      for (const d of shuffle(active)) {
+        if (!result.includes(d)) {
+          result.push(d);
+          if (result.length >= count) break;
+        }
+      }
+    }
+    return result;
+  }
+
+  function buildTwinsQuestion(def, forceExcerpt = false) {
+    const siblings = pickConfusableSiblings(def, 3);
+    const options = [{ text: def.term, isCorrect: true, defId: def.id, tag: 'Correcta' }];
+
+    const useFakeTwins = def.fakeNames && def.fakeNames.length > 0 && Math.random() < 0.5;
+    if (useFakeTwins) {
+      const fakeName = shuffle(def.fakeNames)[0];
+      options.push({ text: fakeName, isCorrect: false, defId: null, tag: 'Nombre Trampa (No existe en el art. 3)' });
+      siblings.slice(0, 2).forEach(s => {
+        options.push({ text: s.term, isCorrect: false, defId: s.id, tag: `Def. ${s.num}: ${s.hook}` });
+      });
+    } else {
+      siblings.slice(0, 3).forEach(s => {
+        options.push({ text: s.term, isCorrect: false, defId: s.id, tag: `Def. ${s.num}: ${s.hook}` });
+      });
+    }
+
+    let displayedDef = stripHtml(def.def);
+    let badge = 'Definición → Término (Duelo de Gemelos)';
+    if ((forceExcerpt || Math.random() < 0.3) && displayedDef.length > 130) {
+      const parts = displayedDef.split(/[.;]/).filter(p => p.trim().length > 35);
+      if (parts.length > 1) {
+        displayedDef = '«...' + parts[Math.floor(Math.random() * parts.length)].trim() + '...»';
+        badge = 'Fragmento Nuclear → Término (Estilo Oficial GC)';
+      }
+    }
+
+    return {
+      mode: 'twins',
+      badge,
+      def,
+      promptTitle: '¿A qué concepto de la Ley 42/2007 corresponde esta definición?',
+      promptBody: `<div class="text-base sm:text-lg leading-relaxed text-slate-100 bg-slate-900/90 p-4 rounded-xl border border-slate-700/80 shadow-inner">
+        <span class="text-emerald-400 font-serif text-xl mr-1">“</span>${displayedDef}<span class="text-emerald-400 font-serif text-xl ml-1">”</span>
+      </div>`,
+      options: shuffle(options)
+    };
+  }
+
+  function buildInverseQuestion(def) {
+    const siblings = pickConfusableSiblings(def, 3);
+    const options = [{ text: stripHtml(def.def), isCorrect: true, defId: def.id, tag: 'Definición Oficial Exacta' }];
+
+    if (def.traps && def.traps.length > 0 && Math.random() < 0.65) {
+      const trap = shuffle(def.traps)[0];
+      options.push({ text: trap.fakeText, isCorrect: false, defId: null, tag: trap.explanation });
+      siblings.slice(0, 2).forEach(s => {
+        options.push({ text: stripHtml(s.def), isCorrect: false, defId: s.id, tag: `Corresponde a «${s.term}» (n.º ${s.num})` });
+      });
+    } else {
+      siblings.slice(0, 3).forEach(s => {
+        options.push({ text: stripHtml(s.def), isCorrect: false, defId: s.id, tag: `Corresponde a «${s.term}» (n.º ${s.num})` });
+      });
+    }
+
+    return {
+      mode: 'inverse',
+      badge: 'Término → Definición (Inverso Letal)',
+      def,
+      promptTitle: 'Señala la definición EXACTA a efectos de la Ley 42/2007 para:',
+      promptBody: `<div class="p-4 rounded-xl bg-gradient-to-r from-emerald-950/70 to-slate-900 border border-emerald-500/40 flex items-center justify-between gap-3">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Concepto n.º ${def.num}</span>
+          <h3 class="text-xl sm:text-2xl font-black text-white mt-0.5">${def.term}</h3>
+        </div>
+        ${def.official ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0">🏆 ${def.official}</span>` : ''}
+      </div>`,
+      options: shuffle(options)
+    };
+  }
+
+  function buildImpostorQuestion(def) {
+    const isLiteral = Math.random() < 0.48;
+    let shownText = stripHtml(def.def);
+    let explanation = '¡Exacto! El texto mostrado coincide al 100% con el artículo 3 de la Ley 42/2007.';
+    let SiblingConfusedId = null;
+
+    if (!isLiteral) {
+      if (def.traps && def.traps.length > 0 && Math.random() < 0.75) {
+        const trap = shuffle(def.traps)[0];
+        shownText = trap.fakeText;
+        explanation = trap.explanation;
+      } else {
+        const twin = pickConfusableSiblings(def, 1)[0];
+        shownText = stripHtml(twin.def);
+        SiblingConfusedId = twin.id;
+        explanation = `IMPOSTOR: Esa definición pertenece en realidad a su gemelo «${twin.term}» (n.º ${twin.num}).`;
+      }
+    }
+
+    return {
+      mode: 'impostor',
+      badge: '🕵️ Caza al Impostor (Literal vs. Sabotaje)',
+      def,
+      promptTitle: 'Analiza con lupa cada palabra: ¿Es 100% OFICIAL o tiene TRAMPA?',
+      promptBody: `<div class="space-y-3 bg-slate-900/95 p-4 sm:p-5 rounded-xl border border-slate-700">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+          <span class="text-lg sm:text-xl font-black text-emerald-400">${def.num}. ${def.term}</span>
+          <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300">${CLUSTERS[def.cluster].icon} ${CLUSTERS[def.cluster].name}</span>
+        </div>
+        <p class="text-base sm:text-lg leading-relaxed text-slate-100">“${shownText}”</p>
+      </div>`,
+      options: [
+        {
+          text: '✅ VERDADERO · Es 100% literal de la norma',
+          isCorrect: isLiteral,
+          defId: isLiteral ? def.id : SiblingConfusedId,
+          tag: isLiteral ? 'Texto íntegro oficial' : explanation
+        },
+        {
+          text: '🚨 IMPOSTOR / TRAMPA · Han alterado un matiz o es de otro concepto',
+          isCorrect: !isLiteral,
+          defId: !isLiteral ? def.id : SiblingConfusedId,
+          tag: explanation
+        }
+      ],
+      impostorExplanation: explanation
+    };
+  }
+
+  function buildClozeQuestion(def) {
+    const rawText = stripHtml(def.def);
+    const targets = [];
+    for (const phrase of (def.clozes || [])) {
+      const idx = rawText.toLowerCase().indexOf(phrase.toLowerCase());
+      if (idx !== -1) {
+        targets.push({ phrase: rawText.slice(idx, idx + phrase.length), idx });
+      }
+    }
+    targets.sort((a, b) => a.idx - b.idx);
+    if (targets.length === 0) return buildTwinsQuestion(def);
+
+    let htmlParts = '';
+    let cursor = 0;
+    targets.forEach((t, i) => {
+      if (t.idx >= cursor) {
+        htmlParts += rawText.slice(cursor, t.idx);
+        htmlParts += `<span class="cloze-slot" data-slot="${i}" onclick="clearClozeSlot(${i})">[ Hueco ${i + 1} ]</span>`;
+        cursor = t.idx + t.phrase.length;
+      }
+    });
+    htmlParts += rawText.slice(cursor);
+
+    const distractors = [];
+    const siblings = pickConfusableSiblings(def, 5);
+    for (const s of siblings) {
+      for (const c of (s.clozes || [])) {
+        if (!targets.some(t => t.phrase.toLowerCase() === c.toLowerCase()) && !distractors.includes(c)) {
+          distractors.push(c);
+        }
+      }
+    }
+    const bank = shuffle([...targets.map(t => t.phrase), ...shuffle(distractors).slice(0, Math.max(3, 6 - targets.length))]);
+
+    return {
+      mode: 'cloze',
+      badge: '🎯 Francotirador de Negritas (Huecos Clave)',
+      def,
+      targets: targets.map(t => t.phrase),
+      filled: new Array(targets.length).fill(null),
+      bank,
+      promptTitle: `Toca las piezas clave en orden para completar «${def.term}»:`,
+      promptBody: `<div class="space-y-3 bg-slate-900/95 p-4 sm:p-5 rounded-xl border border-slate-700">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <span class="text-lg font-black text-sky-400">${def.num}. ${def.term}</span>
+          <span class="text-xs text-slate-400">Toca un hueco relleno si quieres corregir</span>
+        </div>
+        <div id="cloze-sentence" class="text-base sm:text-lg leading-loose text-slate-100">${htmlParts}</div>
+      </div>`
+    };
+  }
+
+  function buildSmartFSRSQuestion(def) {
+    const card = appState.cards[def.id] || createEmptyCard(def.id);
+    const roll = Math.random();
+    if (card.reps === 0) return roll < 0.65 ? buildTwinsQuestion(def, false) : buildClozeQuestion(def);
+    if (card.lapses > 0 || card.D >= 6.8) {
+      if (roll < 0.38) return buildInverseQuestion(def);
+      if (roll < 0.72) return buildImpostorQuestion(def);
+      return buildTwinsQuestion(def, true);
+    }
+    if (roll < 0.28) return buildTwinsQuestion(def, true);
+    if (roll < 0.55) return buildInverseQuestion(def);
+    if (roll < 0.80) return buildImpostorQuestion(def);
+    return buildClozeQuestion(def);
+  }
+
+  let currentSession = null;
+  let speedMatchTimer = null;
+
+  function updateTopKPIs() {
+    const active = getActiveDefinitions();
+    const due = getDueDefinitions();
+    const nowMs = getNowMs();
+    let sumR = 0, reviewedCount = 0, masteredCount = 0;
+
+    active.forEach(d => {
+      const c = appState.cards[d.id];
+      if (c && c.state !== 'new' && c.lastReview) {
+        sumR += getRetrievability(c, nowMs);
+        reviewedCount++;
+        if (c.S >= 7) masteredCount++;
+      }
+    });
+
+    const avgR = reviewedCount > 0 ? Math.round((sumR / reviewedCount) * 100) : 100;
+    const elDue = document.getElementById('kpi-due');
+    const elRet = document.getElementById('kpi-retention');
+    const elMas = document.getElementById('kpi-mastered');
+    const elStr = document.getElementById('kpi-streak');
+
+    if (elDue) elDue.textContent = due.length;
+    if (elRet) elRet.textContent = reviewedCount > 0 ? `${avgR}%` : 'Nuevo';
+    if (elMas) elMas.textContent = `${masteredCount}/${active.length}`;
+    if (elStr) elStr.textContent = appState.streak || 0;
+  }
+
+  function switchTab(tabId) {
+    if (speedMatchTimer) {
+      clearInterval(speedMatchTimer);
+      speedMatchTimer = null;
+    }
+    ['play', 'twins', 'radar', 'settings'].forEach(t => {
+      const sec = document.getElementById(`tab-${t}`);
+      const btn = document.getElementById(`tab-btn-${t}`);
+      if (sec) sec.classList.toggle('hidden', t !== tabId);
+      if (btn) {
+        btn.className = t === tabId
+          ? 'tab-btn px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-emerald-600 text-white shadow'
+          : 'tab-btn px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-slate-800/80 text-slate-300 hover:bg-slate-700';
+      }
+    });
+
+    if (tabId === 'play') renderPlayHub();
+    if (tabId === 'twins') renderTwinsTab();
+    if (tabId === 'radar') renderRadarTab();
+    if (tabId === 'settings') renderSettingsTab();
+  }
+
+  function getNextDueForecastText() {
+    const active = getActiveDefinitions();
+    const nowMs = getNowMs();
+    let minFutureDue = Infinity;
+    active.forEach(d => {
+      const c = appState.cards[d.id];
+      if (c && c.due && c.due > nowMs && c.due < minFutureDue) minFutureDue = c.due;
+    });
+    if (minFutureDue === Infinity) return 'Aún no hay tarjetas programadas a futuro';
+    const diffDays = (minFutureDue - nowMs) / (86400 * 1000);
+    return `Próximo vencimiento FSRS en ${formatInterval(diffDays)}`;
+  }
+
+  function renderPlayHub() {
+    const container = document.getElementById('tab-play');
+    if (!container) return;
+
+    const dueList = getDueDefinitions();
+    const active = getActiveDefinitions();
+    const newCount = active.filter(d => !appState.cards[d.id] || appState.cards[d.id].state === 'new').length;
+    const dueReviewCount = dueList.length - newCount;
+    const confusionPairsCount = Object.keys(appState.confusions || {}).length;
+
+    container.innerHTML = `
+      <div class="rounded-2xl bg-gradient-to-br from-emerald-950/90 via-slate-900 to-slate-900 border border-emerald-500/40 p-4 sm:p-6 shadow-xl">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div class="space-y-2 max-w-2xl">
+            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
+              <span>🧠 Motor FSRS Activo (Umbral R = ${Math.round(appState.targetRetention * 100)}%)</span>
+              ${appState.timeOffsetDays > 0 ? `<span class="text-amber-300">· Reloj simulado: +${appState.timeOffsetDays}d</span>` : ''}
+            </div>
+            <h2 class="text-xl sm:text-2xl font-black text-white">
+              ${dueList.length > 0
+                ? `Tienes <span class="text-emerald-400 underline decoration-emerald-500/50">${dueList.length} definiciones</span> listas para entrenar hoy`
+                : `¡Has limpiado todas las definiciones pendientes de hoy! 🎉`}
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              ${dueList.length > 0
+                ? `Desglose hoy: <b>${Math.max(0, dueReviewCount)}</b> en punto crítico de olvido (R ≤ ${Math.round(appState.targetRetention * 100)}%) y <b>${newCount}</b> nuevas por estrenar. El juego adapta automáticamente el modo de pregunta y te califica según tu velocidad y precisión.`
+                : `${getNextDueForecastText()}. Si tu tarjeta gatillo de Anki te ha traído aquí o quieres repasar antes de tiempo, lanza un asalto de refuerzo debajo.`}
+            </p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row lg:flex-col gap-2.5 shrink-0">
+            <button onclick="startSession('fsrs_daily', 15)" class="px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2">
+              <span>⚡</span>
+              <span>${dueList.length > 0 ? `Iniciar Sesión FSRS (${Math.min(15, dueList.length)} defs · ~3 min)` : 'Repaso Adelantado FSRS (12 más débiles)'}</span>
+            </button>
+            ${dueList.length > 15 ? `
+              <button onclick="startSession('fsrs_daily', ${dueList.length})" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 font-bold text-xs transition">
+                Hacer las ${dueList.length} pendientes del tirón
+              </button>
+            ` : ''}
+          </div>
+        </div>
+
+        <div class="mt-5 pt-4 border-t border-slate-800/90">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Entrenar por Familia de Confusión (Clústeres Trampa):</span>
+            ${confusionPairsCount > 0 ? `
+              <button onclick="startSession('confusions_only', 12)" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30 transition">
+                🔥 Atacar mis ${confusionPairsCount} cruces de confusión
+              </button>
+            ` : ''}
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+            ${Object.values(CLUSTERS).map(c => {
+              const cDefs = active.filter(d => d.cluster === c.id);
+              if (cDefs.length === 0) return '';
+              const cDue = cDefs.filter(d => dueList.includes(d)).length;
+              return `
+                <button onclick="startClusterSession('${c.id}')" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-left transition group">
+                  <div class="flex items-center justify-between">
+                    <span class="text-base">${c.icon}</span>
+                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${cDue > 0 ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-emerald-300'}">${cDue > 0 ? `${cDue} pend.` : 'OK'}</span>
+                  </div>
+                  <div class="text-xs font-bold text-slate-200 group-hover:text-emerald-300 mt-1 line-clamp-2">${c.name}</div>
+                  <div class="text-[10px] text-slate-500 mt-0.5">${cDefs.length} conceptos</div>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-400 mb-3">Modos de Juego Específicos ("De todas las formas posibles")</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          <div class="rounded-xl bg-[#131c31] border border-slate-800 p-4 flex flex-col justify-between hover:border-sky-500/50 transition">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-extrabold px-2 py-0.5 rounded bg-sky-500/20 text-sky-300">MODO 1 · DIRECTO + SEÑUELOS</span>
+                <span class="text-lg">👯</span>
+              </div>
+              <h4 class="text-base font-bold text-white mt-2">Duelo de Gemelos y Nombres Trampa</h4>
+              <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                Te da la definición (completa o recortada) y 4 nombres de su misma familia mezclados con <b>nombres falsos inventados estilo examen oficial</b> (ej. <i>Situación límite de una especie</i>).
+              </p>
+            </div>
+            <button onclick="startSession('twins', 12)" class="mt-4 w-full py-2 rounded-lg bg-sky-600/20 hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 font-bold text-xs transition">
+              Jugar 12 Duelos de Gemelos →
+            </button>
+          </div>
+
+          <div class="rounded-xl bg-[#131c31] border border-slate-800 p-4 flex flex-col justify-between hover:border-purple-500/50 transition">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-extrabold px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">MODO 2 · INVERSO</span>
+                <span class="text-lg">🔄</span>
+              </div>
+              <h4 class="text-base font-bold text-white mt-2">Inverso Letal (Término → 4 Textos)</h4>
+              <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                Te doy el título del concepto y 4 parrafadas casi idénticas: la literal, dos hermanas y una con sabotaje. Te obliga a buscar el <b>gatillo diferencial</b> en medio del texto.
+              </p>
+            </div>
+            <button onclick="startSession('inverse', 12)" class="mt-4 w-full py-2 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 font-bold text-xs transition">
+              Jugar 12 Inversos Letales →
+            </button>
+          </div>
+
+          <div class="rounded-xl bg-[#131c31] border border-slate-800 p-4 flex flex-col justify-between hover:border-rose-500/50 transition">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-extrabold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300">MODO 3 · DETECTOR DE MENTIRAS</span>
+                <span class="text-lg">🕵️</span>
+              </div>
+              <h4 class="text-base font-bold text-white mt-2">Caza al Impostor (Sabotaje Quirúrgico)</h4>
+              <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                ¿Es 100% literal o hemos cambiado <i>"sin ánimo de lucro"</i> por <i>"con o sin ánimo de lucro"</i>, <i>"orden"</i> por <i>"real decreto"</i> o <i>"incluidos los extinguidos"</i> por <i>"excluidos"</i>?
+              </p>
+            </div>
+            <button onclick="startSession('impostor', 15)" class="mt-4 w-full py-2 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 font-bold text-xs transition">
+              Cazar 15 Impostores →
+            </button>
+          </div>
+
+          <div class="rounded-xl bg-[#131c31] border border-slate-800 p-4 flex flex-col justify-between hover:border-emerald-500/50 transition">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-extrabold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">MODO 4 · CLOZE DE NEGRITAS</span>
+                <span class="text-lg">🎯</span>
+              </div>
+              <h4 class="text-base font-bold text-white mt-2">Francotirador de Negritas ProCivil</h4>
+              <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                La definición aparece con huecos justo en las palabras en <b>negrita</b> de tu PDF de ProCivil. Encaja las piezas exactas entre los distractores de sus definiciones vecinas.
+              </p>
+            </div>
+            <button onclick="startSession('cloze', 12)" class="mt-4 w-full py-2 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 font-bold text-xs transition">
+              Completar 12 Francotiradores →
+            </button>
+          </div>
+
+          <div class="rounded-xl bg-[#131c31] border border-slate-800 p-4 flex flex-col justify-between hover:border-amber-500/50 transition">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-extrabold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">MODO 5 · CONTRARRELOJ</span>
+                <span class="text-lg">⏱️</span>
+              </div>
+              <h4 class="text-base font-bold text-white mt-2">Ráfaga 90s: Conecta Gatillos</h4>
+              <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                5 conceptos a la izquierda y 5 gatillos nucleares a la derecha. Empareja tandas sin fallar a toda velocidad para fijar los reflejos rápidos de examen.
+              </p>
+            </div>
+            <button onclick="startSpeedMatch()" class="mt-4 w-full py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 font-bold text-xs transition">
+              Lanzar Ráfaga Contrarreloj →
+            </button>
+          </div>
+
+          <div class="rounded-xl bg-[#131c31] border border-slate-800 p-4 flex flex-col justify-between hover:border-indigo-500/50 transition">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-extrabold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">MODO 6 · OFICIALES 2020-2025</span>
+                <span class="text-lg">🏆</span>
+              </div>
+              <h4 class="text-base font-bold text-white mt-2">Preguntas Oficiales + Simulacro GC</h4>
+              <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                Pon a prueba las preguntas reales de exámenes oficiales (2020 a 2025) junto con un simulacro con opción de dejar en blanco y penalización oficial (-1/3).
+              </p>
+            </div>
+            <button onclick="startOfficialExamSession()" class="mt-4 w-full py-2 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 font-bold text-xs transition">
+              Hacer Simulacro Oficial (15 pregs) →
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function pickPrioritizedDefs(count, clusterFilter = null, onlyConfusions = false) {
+    let pool = getActiveDefinitions();
+    if (clusterFilter) pool = pool.filter(d => d.cluster === clusterFilter);
+    if (onlyConfusions) {
+      const confIds = new Set();
+      Object.keys(appState.confusions || {}).forEach(pair => pair.split('__').forEach(id => confIds.add(id)));
+      const filtered = pool.filter(d => confIds.has(d.id));
+      if (filtered.length >= 2) pool = filtered;
+    }
+
+    const nowMs = getNowMs();
+    const scored = shuffle(pool).map(d => {
+      const c = appState.cards[d.id] || createEmptyCard(d.id);
+      const isNew = c.state === 'new' || !c.lastReview;
+      const r = isNew ? 0.899 : getRetrievability(c, nowMs);
+      const isDue = isNew || r <= appState.targetRetention + 0.005 || (c.due && c.due <= nowMs);
+      return { def: d, isDue, isNew, r };
+    });
+
+    scored.sort((a, b) => {
+      if (a.isDue !== b.isDue) return a.isDue ? -1 : 1;
+      return a.r - b.r;
+    });
+
+    return scored.slice(0, count).map(s => s.def);
+  }
+
+  function startClusterSession(clusterId) {
+    const defs = pickPrioritizedDefs(12, clusterId, false);
+    launchQuestionQueue(defs, 'fsrs_daily', `Clúster: ${CLUSTERS[clusterId].name}`);
+  }
+
+  function startSession(mode, count = 12) {
+    const onlyConf = mode === 'confusions_only';
+    const defs = pickPrioritizedDefs(count, null, onlyConf);
+    const effectiveMode = onlyConf ? 'fsrs_daily' : mode;
+    const titleMap = {
+      fsrs_daily: 'Sesión Inteligente FSRS',
+      twins: 'Duelo de Gemelos y Nombres Trampa',
+      inverse: 'Inverso Letal (Término → Definición)',
+      impostor: 'Caza al Impostor (Sabotaje)',
+      cloze: 'Francotirador de Negritas'
+    };
+    launchQuestionQueue(defs, effectiveMode, onlyConf ? 'Asalto a tus Cruces de Confusión' : (titleMap[effectiveMode] || 'Entrenamiento'));
+  }
+
+  function launchQuestionQueue(defs, mode, sessionTitle) {
+    const questions = defs.map(d => {
+      if (mode === 'twins') return buildTwinsQuestion(d);
+      if (mode === 'inverse') return buildInverseQuestion(d);
+      if (mode === 'impostor') return buildImpostorQuestion(d);
+      if (mode === 'cloze') return buildClozeQuestion(d);
+      return buildSmartFSRSQuestion(d);
+    });
+
+    currentSession = {
+      title: sessionTitle, mode, questions, index: 0,
+      correctCount: 0, wrongCount: 0, requeueCount: 0,
+      questionStartMs: Date.now(), usedHint: false, answered: false, lastAutoGrade: null
+    };
+    renderActiveQuestion();
+  }
+
+  function renderActiveQuestion() {
+    const container = document.getElementById('tab-play');
+    if (!container || !currentSession) return;
+    if (currentSession.index >= currentSession.questions.length) {
+      renderSessionSummary();
+      return;
+    }
+
+    const q = currentSession.questions[currentSession.index];
+    currentSession.questionStartMs = Date.now();
+    currentSession.usedHint = false;
+    currentSession.answered = false;
+
+    const card = appState.cards[q.def.id] || createEmptyCard(q.def.id);
+    const rPct = card.state === 'new' ? 'Nueva' : `${Math.round(getRetrievability(card) * 100)}%`;
+    const stabText = card.state === 'new' ? 'S: 0d' : `S: ${card.S}d · D: ${card.D}`;
+    const progressPct = Math.round((currentSession.index / currentSession.questions.length) * 100);
+
+    let interactionHtml = '';
+    if (q.mode === 'cloze') {
+      interactionHtml = `
+        <div class="mt-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Banco de Piezas Clave (toca para rellenar en orden):</div>
+          <div id="cloze-bank" class="flex flex-wrap gap-2">
+            ${q.bank.map((phrase, bIdx) => `
+              <button onclick="selectClozeBankPill(${bIdx})" id="cloze-pill-${bIdx}" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs sm:text-sm font-bold text-emerald-300 transition">
+                ${phrase}
+              </button>
+            `).join('')}
+          </div>
+          <button onclick="submitClozeAnswer()" id="btn-submit-cloze" class="mt-4 w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm transition shadow-lg">
+            Comprobar Huecos
+          </button>
+        </div>
+      `;
+    } else {
+      interactionHtml = `
+        <div class="mt-4 grid grid-cols-1 gap-2.5" id="options-list">
+          ${q.options.map((opt, idx) => `
+            <button onclick="submitMultipleChoice(${idx})" id="opt-btn-${idx}" class="option-btn w-full p-3.5 sm:p-4 rounded-xl bg-[#131c31] border border-slate-700/90 text-slate-100 text-sm sm:text-base flex items-start gap-3">
+              <span class="w-6 h-6 rounded-lg bg-slate-800 border border-slate-600 text-xs font-black flex items-center justify-center shrink-0 mt-0.5 text-slate-300">
+                ${['A', 'B', 'C', 'D'][idx] || '•'}
+              </span>
+              <span class="flex-1 leading-snug">${opt.text}</span>
+            </button>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    container.innerHTML = `
+      <div class="max-w-3xl mx-auto space-y-4">
+        <div class="flex items-center justify-between gap-2 text-xs">
+          <button onclick="renderPlayHub()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold flex items-center gap-1">
+            <span>←</span> <span>Salir al Panel</span>
+          </button>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 font-bold">${currentSession.title}</span>
+            <span class="px-2.5 py-1 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-mono font-bold">
+              ${currentSession.index + 1} / ${currentSession.questions.length}
+            </span>
+          </div>
+        </div>
+
+        <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+          <div class="h-full bg-emerald-500 transition-all duration-300" style="width: ${progressPct}%"></div>
+        </div>
+
+        <div class="rounded-2xl bg-[#131c31] border border-slate-800 p-4 sm:p-6 shadow-xl">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30">
+              ${q.badge}
+            </span>
+            <div class="flex items-center gap-2 text-[11px]">
+              <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
+                Retención R: <b class="text-emerald-400">${rPct}</b> (${stabText})
+              </span>
+              <button onclick="showQuestionHint()" id="btn-hint" class="px-2.5 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 font-bold transition">
+                💡 Pista (Limita a Hard)
+              </button>
+            </div>
+          </div>
+
+          <p class="text-xs sm:text-sm font-bold text-slate-400 mb-2">${q.promptTitle}</p>
+          ${q.promptBody}
+
+          <div id="hint-box" class="hidden mt-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200">
+            <b>💡 Gatillo ProCivil (${CLUSTERS[q.def.cluster].name}):</b> ${q.def.hook}
+          </div>
+
+          ${interactionHtml}
+          <div id="feedback-box" class="hidden mt-5 pt-4 border-t border-slate-800 space-y-4"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  function showQuestionHint() {
+    if (!currentSession || currentSession.answered) return;
+    currentSession.usedHint = true;
+    const hb = document.getElementById('hint-box');
+    if (hb) hb.classList.remove('hidden');
+  }
+
+  function selectClozeBankPill(bankIdx) {
+    if (!currentSession || currentSession.answered) return;
+    const q = currentSession.questions[currentSession.index];
+    const emptySlotIdx = q.filled.findIndex(v => v === null);
+    if (emptySlotIdx === -1) return;
+    q.filled[emptySlotIdx] = { bankIdx, text: q.bank[bankIdx] };
+    const pill = document.getElementById(`cloze-pill-${bankIdx}`);
+    if (pill) {
+      pill.disabled = true;
+      pill.classList.add('opacity-30', 'pointer-events-none');
+    }
+    refreshClozeSlotsUI();
+  }
+
+  function clearClozeSlot(slotIdx) {
+    if (!currentSession || currentSession.answered) return;
+    const q = currentSession.questions[currentSession.index];
+    const item = q.filled[slotIdx];
+    if (!item) return;
+    const pill = document.getElementById(`cloze-pill-${item.bankIdx}`);
+    if (pill) {
+      pill.disabled = false;
+      pill.classList.remove('opacity-30', 'pointer-events-none');
+    }
+    q.filled[slotIdx] = null;
+    refreshClozeSlotsUI();
+  }
+
+  function refreshClozeSlotsUI() {
+    const q = currentSession.questions[currentSession.index];
+    const slots = document.querySelectorAll('#cloze-sentence .cloze-slot');
+    slots.forEach((el, idx) => {
+      const f = q.filled[idx];
+      if (f) {
+        el.textContent = f.text;
+        el.classList.add('filled');
+      } else {
+        el.textContent = `[ Hueco ${idx + 1} ]`;
+        el.classList.remove('filled');
+      }
+    });
+  }
+
+  function submitClozeAnswer() {
+    if (!currentSession || currentSession.answered) return;
+    const q = currentSession.questions[currentSession.index];
+    let allCorrect = true;
+    const slots = document.querySelectorAll('#cloze-sentence .cloze-slot');
+    q.targets.forEach((targetPhrase, idx) => {
+      const userEntry = q.filled[idx];
+      const ok = userEntry && userEntry.text.toLowerCase() === targetPhrase.toLowerCase();
+      if (!ok) {
+        allCorrect = false;
+        if (slots[idx]) {
+          slots[idx].classList.remove('filled');
+          slots[idx].classList.add('wrong');
+          slots[idx].innerHTML = `${userEntry ? `<s class="opacity-70 mr-1">${userEntry.text}</s>` : ''} → <b>${targetPhrase}</b>`;
+        }
+      }
+    });
+    const btn = document.getElementById('btn-submit-cloze');
+    if (btn) btn.classList.add('hidden');
+    finalizeQuestionTurn(allCorrect, null, '');
+  }
+
+  function submitMultipleChoice(selectedIdx) {
+    if (!currentSession || currentSession.answered) return;
+    const q = currentSession.questions[currentSession.index];
+    const chosen = q.options[selectedIdx];
+    const isCorrect = Boolean(chosen.isCorrect);
+
+    q.options.forEach((opt, idx) => {
+      const btn = document.getElementById(`opt-btn-${idx}`);
+      if (!btn) return;
+      btn.disabled = true;
+      if (opt.isCorrect) btn.classList.add('correct-ans');
+      else if (idx === selectedIdx && !opt.isCorrect) btn.classList.add('wrong-ans');
+      if (opt.tag) {
+        const tagEl = document.createElement('div');
+        tagEl.className = 'text-xs mt-1.5 font-semibold ' + (opt.isCorrect ? 'text-emerald-300' : 'text-amber-300/90');
+        tagEl.textContent = '↳ ' + opt.tag;
+        btn.querySelector('span.flex-1').appendChild(tagEl);
+      }
+    });
+
+    const confusedDefId = !isCorrect && chosen.defId ? chosen.defId : null;
+    finalizeQuestionTurn(isCorrect, confusedDefId, chosen.tag || '');
+  }
+
+  function finalizeQuestionTurn(isCorrect, confusedWithId, extraNote) {
+    currentSession.answered = true;
+    const q = currentSession.questions[currentSession.index];
+    const elapsedSec = (Date.now() - currentSession.questionStartMs) / 1000;
+
+    let autoGrade = 1;
+    if (isCorrect) {
+      if (currentSession.usedHint || elapsedSec > 18) autoGrade = 2;
+      else if (elapsedSec < 5.5) autoGrade = 4;
+      else autoGrade = 3;
+      currentSession.correctCount++;
+    } else {
+      autoGrade = 1;
+      currentSession.wrongCount++;
+      if (confusedWithId) recordConfusion(q.def.id, confusedWithId);
+      if (currentSession.requeueCount < 4) {
+        currentSession.requeueCount++;
+        currentSession.questions.push(buildTwinsQuestion(q.def, false));
+      }
+    }
+
+    currentSession.prevCardSnapshot = JSON.parse(JSON.stringify(appState.cards[q.def.id] || createEmptyCard(q.def.id)));
+    const fsrsRes = applyFSRSGrade(q.def.id, autoGrade);
+    currentSession.lastAutoGrade = autoGrade;
+    renderTurnFeedback(q, isCorrect, confusedWithId, elapsedSec, autoGrade, fsrsRes, extraNote);
+  }
+
+  function overrideTurnFSRS(newGrade) {
+    if (!currentSession || !currentSession.answered) return;
+    const q = currentSession.questions[currentSession.index];
+    appState.cards[q.def.id] = JSON.parse(JSON.stringify(currentSession.prevCardSnapshot));
+    const fsrsRes = applyFSRSGrade(q.def.id, newGrade);
+    currentSession.lastAutoGrade = newGrade;
+    renderTurnFeedback(q, newGrade >= 2, null, 0, newGrade, fsrsRes, 'Calificación FSRS ajustada manualmente.');
+  }
+
+  function renderTurnFeedback(q, isCorrect, confusedWithId, elapsedSec, activeGrade, fsrsRes, extraNote) {
+    const fb = document.getElementById('feedback-box');
+    if (!fb) return;
+    fb.classList.remove('hidden');
+
+    const gradeNames = { 1: 'AGAIN (1 · Olvido)', 2: 'HARD (2 · Dudoso)', 3: 'GOOD (3 · Bien)', 4: 'EASY (4 · Rápido)' };
+    const gradeColors = {
+      1: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+      2: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+      3: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+      4: 'bg-sky-500/20 text-sky-300 border-sky-500/40'
+    };
+
+    const confusedDef = confusedWithId ? getDefById(confusedWithId) : null;
+    const baseSnap = currentSession.prevCardSnapshot || createEmptyCard(q.def.id);
+
+    fb.innerHTML = `
+      <div class="p-4 rounded-xl border ${isCorrect ? 'bg-emerald-950/40 border-emerald-500/40' : 'bg-rose-950/40 border-rose-500/40'} space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">${isCorrect ? '✅' : '❌'}</span>
+            <span class="font-black text-sm sm:text-base ${isCorrect ? 'text-emerald-300' : 'text-rose-300'}">
+              ${isCorrect ? `¡Correcto! (${elapsedSec ? elapsedSec.toFixed(1) + 's' : 'Ajustado'})` : '¡Cuidado! Has caído en la trampa'}
+            </span>
+          </div>
+          <span class="text-xs font-extrabold px-2.5 py-1 rounded-full border ${gradeColors[activeGrade]}">
+            FSRS: ${gradeNames[activeGrade]} → Próximo repaso en ${formatInterval(fsrsRes.intervalDays)}
+          </span>
+        </div>
+
+        <div class="p-3 rounded-lg bg-slate-900/90 border border-slate-700/80 text-xs sm:text-sm space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-black text-emerald-400">${q.def.num}. ${q.def.term}</span>
+            <span class="text-[11px] text-amber-300 font-bold">🔑 Gatillo: ${q.def.hook}</span>
+          </div>
+          <p class="text-slate-200 leading-relaxed kw-highlight">${q.def.def}</p>
+        </div>
+
+        ${confusedDef ? `
+          <div class="p-3 rounded-lg bg-rose-950/60 border border-rose-500/40 text-xs space-y-1">
+            <div class="font-extrabold text-rose-300">⚠️ Lo has confundido con su gemelo «${confusedDef.num}. ${confusedDef.term}»:</div>
+            <p class="text-slate-300 kw-highlight">${confusedDef.def}</p>
+            <div class="text-amber-300 font-bold">↳ Diferencia clave: ${confusedDef.hook}</div>
+          </div>
+        ` : ''}
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span class="text-[11px] text-slate-400 mr-1">¿Cambiar nota FSRS?:</span>
+            ${[1, 2, 3, 4].map(g => {
+              const prev = previewFSRS(baseSnap, g);
+              const labels = { 1: 'Again', 2: 'Hard', 3: 'Good', 4: 'Easy' };
+              const activeCls = activeGrade === g ? 'ring-2 ring-white font-black' : 'opacity-75 hover:opacity-100';
+              return `
+                <button onclick="overrideTurnFSRS(${g})" class="px-2 py-1 rounded text-[11px] border ${gradeColors[g]} ${activeCls} transition">
+                  ${labels[g]} (${formatInterval(prev.intervalDays)})
+                </button>
+              `;
+            }).join('')}
+          </div>
+
+          <button onclick="nextSessionQuestion()" id="btn-next-q" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm transition shadow-lg">
+            Siguiente (${currentSession.index + 1}/${currentSession.questions.length}) →
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  function nextSessionQuestion() {
+    if (!currentSession) return;
+    currentSession.index++;
+    renderActiveQuestion();
+  }
+
+  function renderSessionSummary() {
+    const container = document.getElementById('tab-play');
+    if (!container || !currentSession) return;
+    const total = currentSession.correctCount + currentSession.wrongCount;
+    const pct = total > 0 ? Math.round((currentSession.correctCount / total) * 100) : 100;
+    const dueRemaining = getDueDefinitions().length;
+
+    container.innerHTML = `
+      <div class="max-w-xl mx-auto rounded-2xl bg-[#131c31] border border-emerald-500/40 p-6 text-center space-y-5 shadow-2xl">
+        <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-3xl mx-auto">🏁</div>
+        <div>
+          <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-400">${currentSession.title}</span>
+          <h2 class="text-2xl font-black text-white mt-1">¡Sesión Completada!</h2>
+          <p class="text-xs text-slate-400 mt-1">${getNextDueForecastText()}</p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+            <div class="text-xl font-black text-emerald-400">${pct}%</div>
+            <div class="text-[11px] text-slate-400">Precisión</div>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+            <div class="text-xl font-black text-sky-400">${currentSession.correctCount}</div>
+            <div class="text-[11px] text-slate-400">Aciertos</div>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+            <div class="text-xl font-black text-amber-400">${dueRemaining}</div>
+            <div class="text-[11px] text-slate-400">Pendientes hoy</div>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-700 text-left text-xs space-y-1">
+          <div class="font-extrabold text-sky-300">📌 Informe para tu Flashcard Gatillo de Anki:</div>
+          <p class="text-slate-300">
+            ${dueRemaining > 0
+              ? `Aún te quedan <b>${dueRemaining} definiciones</b> pendientes hoy para dejar el contador a cero. ¡Haz una tanda más de 2 minutos!`
+              : `Has dejado el contador de hoy a <b>0 pendientes</b>. En tu tarjeta gatillo de Anki puedes pulsar <b>GOOD</b> con total tranquilidad.`}
+          </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-2.5 justify-center">
+          ${dueRemaining > 0 ? `
+            <button onclick="startSession('fsrs_daily', 15)" class="px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm transition">
+              ⚡ Continuar (${Math.min(15, dueRemaining)} restantes)
+            </button>
+          ` : ''}
+          <button onclick="renderPlayHub()" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm transition">
+            Volver al Panel Principal
+          </button>
+        </div>
+      </div>
+    `;
+  }
+  </script>
+  <script>
+  let speedState = null;
+
+  function startSpeedMatch() {
+    if (speedMatchTimer) clearInterval(speedMatchTimer);
+    speedState = {
+      secondsLeft: 90, score: 0, combo: 0, matchedTotal: 0, mistakes: 0,
+      selectedLeft: null, selectedRight: null, boardPairs: [], matchedIds: new Set()
+    };
+    loadNextSpeedBoard();
+    renderSpeedMatchUI();
+
+    speedMatchTimer = setInterval(() => {
+      if (!speedState) return;
+      speedState.secondsLeft--;
+      const timerEl = document.getElementById('speed-timer');
+      if (timerEl) timerEl.textContent = `${speedState.secondsLeft}s`;
+      if (speedState.secondsLeft <= 0) {
+        clearInterval(speedMatchTimer);
+        speedMatchTimer = null;
+        renderSpeedMatchSummary();
+      }
+    }, 1000);
+  }
+
+  function loadNextSpeedBoard() {
+    const clusters = Object.keys(CLUSTERS);
+    let pool = getActiveDefinitions();
+    if (Math.random() < 0.6) {
+      const cId = clusters[Math.floor(Math.random() * clusters.length)];
+      const cPool = pool.filter(d => d.cluster === cId);
+      if (cPool.length >= 5) pool = cPool;
+    }
+    const chosen = shuffle(pool).slice(0, 5);
+    speedState.boardPairs = chosen;
+    speedState.leftOrder = shuffle(chosen.map(d => ({ id: d.id, label: `${d.num}. ${d.term}` })));
+    speedState.rightOrder = shuffle(chosen.map(d => ({ id: d.id, label: d.hook })));
+    speedState.matchedIds = new Set();
+    speedState.selectedLeft = null;
+    speedState.selectedRight = null;
+  }
+
+  function renderSpeedMatchUI() {
+    const container = document.getElementById('tab-play');
+    if (!container || !speedState) return;
+
+    container.innerHTML = `
+      <div class="max-w-4xl mx-auto space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-[#131c31] border border-amber-500/40 rounded-2xl p-4">
+          <div class="flex items-center gap-3">
+            <button onclick="renderPlayHub()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300">← Salir</button>
+            <div>
+              <h3 class="text-sm sm:text-base font-black text-white">⏱️ Ráfaga Contrarreloj · Conecta Concepto y Gatillo</h3>
+              <p class="text-[11px] text-slate-400">Toca un concepto a la izquierda y su gatillo diferencial a la derecha</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 text-xs">
+            <div class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700">
+              Combo: <b id="speed-combo" class="text-amber-400">x${speedState.combo}</b>
+            </div>
+            <div class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700">
+              Parejas: <b id="speed-pairs" class="text-emerald-400">${speedState.matchedTotal}</b>
+            </div>
+            <div class="px-3.5 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 font-mono font-black text-amber-300 text-sm" id="speed-timer">
+              ${speedState.secondsLeft}s
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="speed-board">
+          <div class="space-y-2.5">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-sky-400 px-1">Concepto de la Norma</div>
+            ${speedState.leftOrder.map(item => `
+              <div onclick="clickSpeedCard('left', '${item.id}')" id="speed-left-${item.id}" class="match-card p-3.5 rounded-xl bg-[#131c31] border border-slate-700 text-sm font-bold text-white flex items-center justify-between">
+                <span>${item.label}</span>
+                <span class="text-slate-500 text-xs">→</span>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="space-y-2.5">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-emerald-400 px-1">Gatillo Diferencial ProCivil</div>
+            ${speedState.rightOrder.map(item => `
+              <div onclick="clickSpeedCard('right', '${item.id}')" id="speed-right-${item.id}" class="match-card p-3.5 rounded-xl bg-[#131c31] border border-slate-700 text-xs sm:text-sm text-slate-200 leading-snug">
+                ${item.label}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function clickSpeedCard(side, id) {
+    if (!speedState || speedState.matchedIds.has(id)) return;
+    if (side === 'left') speedState.selectedLeft = speedState.selectedLeft === id ? null : id;
+    else speedState.selectedRight = speedState.selectedRight === id ? null : id;
+
+    speedState.leftOrder.forEach(it => {
+      const el = document.getElementById(`speed-left-${it.id}`);
+      if (el) el.classList.toggle('selected', speedState.selectedLeft === it.id);
+    });
+    speedState.rightOrder.forEach(it => {
+      const el = document.getElementById(`speed-right-${it.id}`);
+      if (el) el.classList.toggle('selected', speedState.selectedRight === it.id);
+    });
+
+    if (speedState.selectedLeft && speedState.selectedRight) {
+      const lId = speedState.selectedLeft;
+      const rId = speedState.selectedRight;
+      const lEl = document.getElementById(`speed-left-${lId}`);
+      const rEl = document.getElementById(`speed-right-${rId}`);
+
+      if (lId === rId) {
+        speedState.matchedIds.add(lId);
+        speedState.matchedTotal++;
+        speedState.combo++;
+        speedState.score += 100 * speedState.combo;
+        applyFSRSGrade(lId, 3);
+
+        if (lEl) { lEl.classList.remove('selected'); lEl.classList.add('matched'); }
+        if (rEl) { rEl.classList.remove('selected'); rEl.classList.add('matched'); }
+        speedState.selectedLeft = null;
+        speedState.selectedRight = null;
+
+        const cEl = document.getElementById('speed-combo');
+        const pEl = document.getElementById('speed-pairs');
+        if (cEl) cEl.textContent = `x${speedState.combo}`;
+        if (pEl) pEl.textContent = speedState.matchedTotal;
+
+        if (speedState.matchedIds.size >= speedState.boardPairs.length) {
+          setTimeout(() => {
+            if (speedState && speedState.secondsLeft > 0) {
+              loadNextSpeedBoard();
+              renderSpeedMatchUI();
+            }
+          }, 280);
+        }
+      } else {
+        speedState.combo = 0;
+        speedState.mistakes++;
+        recordConfusion(lId, rId);
+        applyFSRSGrade(lId, 1);
+
+        if (lEl) lEl.classList.add('error-flash');
+        if (rEl) rEl.classList.add('error-flash');
+        speedState.selectedLeft = null;
+        speedState.selectedRight = null;
+
+        setTimeout(() => {
+          if (lEl) lEl.classList.remove('selected', 'error-flash');
+          if (rEl) rEl.classList.remove('selected', 'error-flash');
+          const cEl = document.getElementById('speed-combo');
+          if (cEl) cEl.textContent = 'x0';
+        }, 420);
+      }
+    }
+  }
+
+  function renderSpeedMatchSummary() {
+    const container = document.getElementById('tab-play');
+    if (!container || !speedState) return;
+    container.innerHTML = `
+      <div class="max-w-lg mx-auto rounded-2xl bg-[#131c31] border border-amber-500/40 p-6 text-center space-y-5 shadow-2xl">
+        <div class="text-4xl">⚡</div>
+        <h2 class="text-2xl font-black text-white">¡Tiempo agotado!</h2>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+            <div class="text-xl font-black text-emerald-400">${speedState.matchedTotal}</div>
+            <div class="text-[11px] text-slate-400">Parejas unidas</div>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+            <div class="text-xl font-black text-amber-400">${speedState.score}</div>
+            <div class="text-[11px] text-slate-400">Puntos</div>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+            <div class="text-xl font-black text-rose-400">${speedState.mistakes}</div>
+            <div class="text-[11px] text-slate-400">Cruces fallados</div>
+          </div>
+        </div>
+        <p class="text-xs text-slate-300">Todas las parejas acertadas y falladas han actualizado su curva FSRS y tu registro de confusiones.</p>
+        <div class="flex justify-center gap-3">
+          <button onclick="startSpeedMatch()" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm">🔄 Repetir Ráfaga</button>
+          <button onclick="renderPlayHub()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm">Volver al Panel</button>
+        </div>
+      </div>
+    `;
+  }
+
+  let officialExamState = null;
+
+  function startOfficialExamSession() {
+    const realItems = OFFICIAL_QUESTIONS.map(oq => ({
+      tag: `🏆 ${oq.exam}`, defId: oq.defId, stem: oq.stem,
+      options: oq.options, correctIndex: oq.correctIndex, note: oq.note
+    }));
+
+    const usedIds = new Set(realItems.map(r => r.defId));
+    const extraDefs = shuffle(getActiveDefinitions().filter(d => !usedIds.has(d.id))).slice(0, 8);
+    const generatedItems = extraDefs.map(d => {
+      const q = Math.random() < 0.65 ? buildTwinsQuestion(d, false) : buildInverseQuestion(d);
+      const opts = q.options.map(o => o.text);
+      const cIdx = q.options.findIndex(o => o.isCorrect);
+      return {
+        tag: `SIMULACRO GC · Def. ${d.num}`,
+        defId: d.id,
+        stem: q.mode === 'twins'
+          ? `A los efectos de la Ley 42/2007, del Patrimonio Natural y de la Biodiversidad, cuando hablamos de «${stripHtml(d.def)}», nos referimos a:`
+          : `A efectos de la Ley 42/2007, ¿qué se entenderá por «${d.term}»?`,
+        options: opts,
+        correctIndex: cIdx,
+        note: `Gatillo clave de «${d.term}»: ${d.hook}`
+      };
+    });
+
+    const allQuestions = [...realItems, ...generatedItems];
+    officialExamState = {
+      questions: allQuestions,
+      userAnswers: new Array(allQuestions.length).fill(null),
+      submitted: false
+    };
+    renderOfficialExamUI();
+  }
+
+  function renderOfficialExamUI() {
+    const container = document.getElementById('tab-play');
+    if (!container || !officialExamState) return;
+    const { questions, userAnswers, submitted } = officialExamState;
+    let hits = 0, errors = 0, blanks = 0;
+    if (submitted) {
+      questions.forEach((q, idx) => {
+        const ans = userAnswers[idx];
+        if (ans === null) blanks++;
+        else if (ans === q.correctIndex) hits++;
+        else errors++;
+      });
+    }
+    const netPoints = Math.max(0, hits - errors / 3);
+    const grade10 = ((netPoints / questions.length) * 10).toFixed(2);
+
+    container.innerHTML = `
+      <div class="max-w-4xl mx-auto space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-[#131c31] border border-indigo-500/40 rounded-2xl p-4">
+          <div class="flex items-center gap-3">
+            <button onclick="renderPlayHub()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300">← Salir</button>
+            <div>
+              <h2 class="text-base sm:text-lg font-black text-white">🏆 Hoja de Examen Oficial GC · T16.2 Definiciones</h2>
+              <p class="text-xs text-slate-400">Incluye las preguntas oficiales 2020-2025 + inéditas de corte oficial. Penalización: 3 fallos restan 1 acierto.</p>
+            </div>
+          </div>
+          ${!submitted ? `
+            <button onclick="submitOfficialExamSheet()" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg">
+              Corregir Hoja de Examen (${userAnswers.filter(x => x !== null).length}/${questions.length})
+            </button>
+          ` : `
+            <div class="flex items-center gap-3">
+              <div class="px-4 py-2 rounded-xl bg-slate-900 border border-emerald-500/40 text-right">
+                <div class="text-xs text-slate-400">Nota Oficial Neta</div>
+                <div class="text-xl font-black text-emerald-400">${grade10} / 10</div>
+              </div>
+              <button onclick="startOfficialExamSession()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs">
+                Nuevo Simulacro
+              </button>
+            </div>
+          `}
+        </div>
+
+        ${submitted ? `
+          <div class="grid grid-cols-3 gap-3 text-center">
+            <div class="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30">
+              <div class="text-lg font-black text-emerald-400">${hits}</div>
+              <div class="text-xs text-slate-300">Aciertos (+1)</div>
+            </div>
+            <div class="p-3 rounded-xl bg-rose-950/40 border border-rose-500/30">
+              <div class="text-lg font-black text-rose-400">${errors}</div>
+              <div class="text-xs text-slate-300">Errores (-0,33)</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-700">
+              <div class="text-lg font-black text-slate-300">${blanks}</div>
+              <div class="text-xs text-slate-400">En blanco (0)</div>
+            </div>
+          </div>
+        ` : ''}
+
+        <div class="space-y-4">
+          ${questions.map((q, qIdx) => {
+            const uAns = userAnswers[qIdx];
+            return `
+              <div class="rounded-2xl bg-[#131c31] border ${submitted ? (uAns === q.correctIndex ? 'border-emerald-500/50' : (uAns === null ? 'border-slate-700' : 'border-rose-500/50')) : 'border-slate-800'} p-4 sm:p-5 space-y-3">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full ${q.tag.includes('OFICIAL') ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-indigo-500/20 text-indigo-300'}">
+                    Pregunta ${qIdx + 1} · ${q.tag}
+                  </span>
+                  ${!submitted && uAns !== null ? `
+                    <button onclick="selectOfficialOption(${qIdx}, null)" class="text-xs text-slate-400 hover:text-white underline">Dejar en blanco</button>
+                  ` : ''}
+                </div>
+                <p class="text-sm sm:text-base font-medium text-slate-100 leading-relaxed">${q.stem}</p>
+                <div class="grid grid-cols-1 gap-2">
+                  ${q.options.map((optText, oIdx) => {
+                    const isSelected = uAns === oIdx;
+                    let cls = 'border-slate-700/80 bg-slate-900/70 text-slate-200 hover:border-slate-500';
+                    if (!submitted && isSelected) cls = 'border-sky-400 bg-sky-500/20 text-white font-bold';
+                    else if (submitted) {
+                      if (oIdx === q.correctIndex) cls = 'border-emerald-500 bg-emerald-500/20 text-emerald-100 font-bold';
+                      else if (isSelected && oIdx !== q.correctIndex) cls = 'border-rose-500 bg-rose-500/20 text-rose-200 line-through';
+                    }
+                    return `
+                      <button ${submitted ? 'disabled' : ''} onclick="selectOfficialOption(${qIdx}, ${oIdx})" class="p-3 rounded-xl border text-left text-xs sm:text-sm flex items-start gap-2.5 transition ${cls}">
+                        <span class="font-mono font-black">${['a)', 'b)', 'c)', 'd)'][oIdx]}</span>
+                        <span class="flex-1">${optText}</span>
+                      </button>
+                    `;
+                  }).join('')}
+                </div>
+                ${submitted ? `
+                  <div class="p-3 rounded-xl bg-slate-900/95 border border-slate-700 text-xs text-emerald-300">
+                    <b>💡 Clave ProCivil:</b> ${q.note}
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  function selectOfficialOption(qIdx, oIdx) {
+    if (!officialExamState || officialExamState.submitted) return;
+    officialExamState.userAnswers[qIdx] = oIdx;
+    renderOfficialExamUI();
+  }
+
+  function submitOfficialExamSheet() {
+    if (!officialExamState || officialExamState.submitted) return;
+    officialExamState.submitted = true;
+    officialExamState.questions.forEach((q, idx) => {
+      const ans = officialExamState.userAnswers[idx];
+      if (ans === q.correctIndex) applyFSRSGrade(q.defId, 3);
+      else if (ans !== null) applyFSRSGrade(q.defId, 1);
+    });
+    renderOfficialExamUI();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function renderTwinsTab() {
+    const container = document.getElementById('tab-twins');
+    if (!container) return;
+    const confEntries = Object.entries(appState.confusions || {}).sort((a, b) => b[1] - a[1]);
+
+    container.innerHTML = `
+      <div class="rounded-2xl bg-[#131c31] border border-slate-800 p-4 sm:p-5 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="text-base sm:text-lg font-black text-white">🔥 Tu Historial Personal de Cruces de Confusión</h2>
+            <p class="text-xs text-slate-400">Cada vez que confundes una definición con otra en cualquier modo de juego, queda registrada aquí para que las compares cara a cara.</p>
+          </div>
+          ${confEntries.length > 0 ? `
+            <button onclick="switchTab('play'); startSession('confusions_only', 12);" class="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-400 text-slate-950 font-black text-xs transition">
+              ⚡ Entrenar mis confusiones ahora
+            </button>
+          ` : ''}
+        </div>
+
+        ${confEntries.length === 0 ? `
+          <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-400">
+            Todavía no has confundido ninguna pareja de definiciones. Cuando falles en el juego eligiendo un concepto hermano, aparecerá aquí la comparativa directa.
+          </div>
+        ` : `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            ${confEntries.map(([pairKey, count]) => {
+              const [idA, idB] = pairKey.split('__');
+              const dA = getDefById(idA);
+              const dB = getDefById(idB);
+              if (!dA || !dB) return '';
+              return `
+                <div class="p-3.5 rounded-xl bg-slate-900 border border-rose-500/30 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-extrabold text-rose-400">Confundidas ${count} ${count === 1 ? 'vez' : 'veces'}</span>
+                    <button onclick="drillPair('${dA.id}', '${dB.id}')" class="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30">
+                      Duelo 1 vs 1 →
+                    </button>
+                  </div>
+                  <div class="grid grid-cols-1 gap-2 text-xs">
+                    <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+                      <div class="font-black text-emerald-400">${dA.num}. ${dA.term}</div>
+                      <div class="text-amber-300 font-semibold mt-0.5">🔑 ${dA.hook}</div>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+                      <div class="font-black text-sky-400">${dB.num}. ${dB.term}</div>
+                      <div class="text-amber-300 font-semibold mt-0.5">🔑 ${dB.hook}</div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `}
+      </div>
+
+      <div class="space-y-4">
+        <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-400">Comparador Cara a Cara de las 7 Familias Trampa</h3>
+        ${Object.values(CLUSTERS).map(cluster => {
+          const cDefs = getActiveDefinitions().filter(d => d.cluster === cluster.id);
+          if (cDefs.length === 0) return '';
+          return `
+            <div class="rounded-2xl bg-[#131c31] border border-slate-800 p-4 sm:p-5 space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                <div>
+                  <h4 class="text-base font-black text-white flex items-center gap-2">
+                    <span>${cluster.icon}</span> <span>${cluster.name}</span>
+                  </h4>
+                  <p class="text-xs text-amber-300/90 mt-0.5">${cluster.summary}</p>
+                </div>
+                <button onclick="switchTab('play'); startClusterSession('${cluster.id}');" class="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 text-xs font-bold shrink-0">
+                  Jugar este Clúster (${cDefs.length}) →
+                </button>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                ${cDefs.map(d => `
+                  <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between space-y-2">
+                    <div>
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="font-black text-sm text-emerald-400">${d.num}. ${d.term}</span>
+                        ${d.official ? `<span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">🏆 ${d.official}</span>` : ''}
+                      </div>
+                      <div class="text-xs font-bold text-amber-300 mt-1">🔑 Gatillo: ${d.hook}</div>
+                      <p class="text-xs text-slate-300 mt-1.5 leading-relaxed kw-highlight">${d.def}</p>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  function drillPair(idA, idB) {
+    const dA = getDefById(idA);
+    const dB = getDefById(idB);
+    if (!dA || !dB) return;
+    switchTab('play');
+    currentSession = {
+      title: `Duelo 1 vs 1: ${dA.term} vs ${dB.term}`,
+      mode: 'pair_drill',
+      questions: [
+        buildTwinsQuestion(dA), buildTwinsQuestion(dB),
+        buildInverseQuestion(dA), buildInverseQuestion(dB),
+        buildImpostorQuestion(dA), buildImpostorQuestion(dB)
+      ],
+      index: 0, correctCount: 0, wrongCount: 0, requeueCount: 0,
+      questionStartMs: Date.now(), usedHint: false, answered: false
+    };
+    renderActiveQuestion();
+  }
+
+  let radarFilterCluster = 'all';
+  let radarSearchQuery = '';
+
+  function renderRadarTab() {
+    const container = document.getElementById('tab-radar');
+    if (!container) return;
+    const active = getActiveDefinitions();
+    const nowMs = getNowMs();
+
+    const filtered = active.filter(d => {
+      if (radarFilterCluster !== 'all' && d.cluster !== radarFilterCluster) return false;
+      if (radarSearchQuery.trim() !== '') {
+        const q = radarSearchQuery.toLowerCase();
+        return d.term.toLowerCase().includes(q) || stripHtml(d.def).toLowerCase().includes(q) || d.hook.toLowerCase().includes(q) || d.num.toLowerCase().includes(q);
+      }
+      return true;
+    });
+
+    container.innerHTML = `
+      <div class="rounded-2xl bg-[#131c31] border border-slate-800 p-4 space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-base sm:text-lg font-black text-white">📊 Radar FSRS en Tiempo Real (${filtered.length} mostradas)</h2>
+            <p class="text-xs text-slate-400">Cada tarjeta muestra su probabilidad de recuerdo hoy (R%), su Estabilidad en días (S) y las negritas exactas del temario ProCivil.</p>
+          </div>
+          <input
+            type="text"
+            placeholder="Buscar término, palabra en negrita o número..."
+            value="${radarSearchQuery}"
+            oninput="updateRadarSearch(this.value)"
+            class="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs sm:text-sm text-white w-full sm:w-72 focus:outline-none focus:border-emerald-500"
+          />
+        </div>
+
+        <div class="flex flex-wrap gap-1.5 pt-1">
+          <button onclick="setRadarCluster('all')" class="px-2.5 py-1 rounded-lg text-xs font-bold ${radarFilterCluster === 'all' ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-300'}">
+            Todas (${active.length})
+          </button>
+          ${Object.values(CLUSTERS).map(c => `
+            <button onclick="setRadarCluster('${c.id}')" class="px-2.5 py-1 rounded-lg text-xs font-bold ${radarFilterCluster === c.id ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-300'}">
+              ${c.icon} ${c.name.split(',')[0]}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="radar-cards-grid">
+        ${filtered.map(d => {
+          const c = appState.cards[d.id] || createEmptyCard(d.id);
+          const isNew = c.state === 'new' || !c.lastReview;
+          const r = isNew ? 0 : getRetrievability(c, nowMs);
+          const rPct = isNew ? 0 : Math.round(r * 100);
+          let statusBadge = '<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 text-[11px] font-bold">Nueva (Sin estrenar)</span>';
+          if (!isNew) {
+            if (r <= appState.targetRetention) {
+              statusBadge = `<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[11px] font-bold">⚡ Pendiente Hoy (R=${rPct}%)</span>`;
+            } else {
+              statusBadge = `<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold">✅ R=${rPct}% · S=${c.S}d · D=${c.D}</span>`;
+            }
+          }
+          return `
+            <div class="rounded-xl bg-[#131c31] border border-slate-800 p-4 flex flex-col justify-between space-y-3">
+              <div class="space-y-1.5">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <span class="text-sm font-black text-white">${d.num}. ${d.term}</span>
+                  <div class="flex items-center gap-1.5">
+                    ${d.official ? `<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-extrabold">🏆 ${d.official}</span>` : ''}
+                    ${statusBadge}
+                  </div>
+                </div>
+                <div class="text-xs font-bold text-emerald-400">🔑 ${d.hook}</div>
+                <p class="text-xs text-slate-300 leading-relaxed kw-highlight">${d.def}</p>
+              </div>
+              <div class="flex items-center justify-between pt-2 border-t border-slate-800/80 text-[11px] text-slate-400">
+                <span>Repasos: <b>${c.reps || 0}</b> · Olvidos: <b>${c.lapses || 0}</b></span>
+                <button onclick="drillSingleDef('${d.id}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-emerald-600 hover:text-white text-emerald-300 font-bold transition">
+                  Poner a prueba →
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  function updateRadarSearch(val) {
+    radarSearchQuery = val;
+    renderRadarTab();
+    const input = document.querySelector('#tab-radar input[type="text"]');
+    if (input) {
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+    }
+  }
+
+  function setRadarCluster(cId) {
+    radarFilterCluster = cId;
+    renderRadarTab();
+  }
+
+  function drillSingleDef(defId) {
+    const d = getDefById(defId);
+    if (!d) return;
+    switchTab('play');
+    currentSession = {
+      title: `Entrenamiento Intensivo: ${d.num}. ${d.term}`,
+      mode: 'single_drill',
+      questions: [buildTwinsQuestion(d, false), buildClozeQuestion(d), buildImpostorQuestion(d), buildInverseQuestion(d)],
+      index: 0, correctCount: 0, wrongCount: 0, requeueCount: 0,
+      questionStartMs: Date.now(), usedHint: false, answered: false
+    };
+    renderActiveQuestion();
+  }
+
+  function renderSettingsTab() {
+    const container = document.getElementById('tab-settings');
+    if (!container) return;
+    const dueCount = getDueDefinitions().length;
+
+    container.innerHTML = `
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="rounded-2xl bg-[#131c31] border border-slate-800 p-5 space-y-4">
+          <h2 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
+            <span>🔗</span> <span>Cómo conectar este Juego con tu Anki</span>
+          </h2>
+          <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 space-y-2 leading-relaxed">
+            <p><b>1. Olvídate de meter 46 tarjetas en Anki:</b> Este juego ya ejecuta internamente las ecuaciones reales de <b>FSRS v5</b> (Dificultad D, Estabilidad S y Curva de Olvido R(t,S)) por separado para cada una de las definiciones.</p>
+            <p><b>2. La "Tarjeta Gatillo" en tu mazo de Anki:</b> Si quieres que Anki te avise dentro de tu rutina diaria, crea <b>1 única tarjeta en Anki</b> que diga: <i>"Abrir Laboratorio FSRS T16.2 y dejar el contador de Pendientes Hoy a 0"</i>.</p>
+            <p><b>3. ¿Cuánto tiempo jugar cada vez?:</b> Solo hasta que el contador superior de <b>Pendientes hoy (${dueCount})</b> llegue a 0 (suele llevar entre 2 y 4 minutos).</p>
+            <div class="pt-2 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2">
+              <span class="text-[11px] text-emerald-300 font-bold">Botón directo para pegar en el reverso de tu tarjeta de Anki:</span>
+              <button onclick="copyAnkiButtonHtml()" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition">
+                📋 Copiar botón HTML para Anki
+              </button>
+            </div>
+          </div>
+
+          <div class="space-y-2 pt-2">
+            <label class="text-xs font-extrabold uppercase tracking-wider text-slate-400 block">
+              Retención Deseada FSRS (Como en Anki: 90% recomendado):
+            </label>
+            <div class="flex flex-wrap gap-2">
+              ${[0.85, 0.90, 0.93, 0.95].map(rVal => `
+                <button onclick="setTargetRetention(${rVal})" class="px-3.5 py-2 rounded-xl text-xs font-bold border transition ${Math.abs(appState.targetRetention - rVal) < 0.005 ? 'bg-emerald-600 text-white border-emerald-400' : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800'}">
+                  ${Math.round(rVal * 100)}% ${rVal === 0.90 ? '(Estándar FSRS)' : (rVal === 0.95 ? '(Modo Examen Inminente)' : '')}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800">
+            <div>
+              <div class="text-xs font-bold text-white">Incluir los 3 bloques finales de la Página 3 del PDF</div>
+              <div class="text-[11px] text-slate-400">Utilidad pública expropiatoria, Obras de interés general por Ley Estatal y Deberes en ZEE/Plataforma continental</div>
+            </div>
+            <button onclick="toggleIncludePage3()" class="px-3 py-1.5 rounded-lg text-xs font-black ${appState.includePage3 ? 'bg-emerald-500 text-slate-950' : 'bg-slate-700 text-slate-300'}">
+              ${appState.includePage3 ? 'SÍ (49 ítems)' : 'NO (46 defs)'}
+            </button>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-[#131c31] border border-slate-800 p-5 space-y-4">
+          <h2 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
+            <span>⏩</span> <span>Simulador de Paso del Tiempo y Copia de Seguridad</span>
+          </h2>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            ¿Quieres comprobar cómo decae la curva de retención R% en los próximos días o adelantar repasos de cara al fin de semana? Puedes mover el reloj FSRS hacia adelante y volver al día real cuando quieras:
+          </p>
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="shiftTimeDays(1)" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 text-xs font-bold">+1 Día</button>
+            <button onclick="shiftTimeDays(3)" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 text-xs font-bold">+3 Días</button>
+            <button onclick="shiftTimeDays(7)" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 text-xs font-bold">+7 Días</button>
+            <button onclick="resetTimeOffset()" class="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold">
+              Volver a Hoy (Offset: +${appState.timeOffsetDays}d)
+            </button>
+          </div>
+
+          <div class="pt-3 border-t border-slate-800 space-y-2">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Sincronizar progreso entre PC y Móvil (JSON):</div>
+            <div class="flex flex-wrap gap-2">
+              <button onclick="exportProgressClipboard()" class="px-3.5 py-2 rounded-xl bg-sky-600/20 hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 text-xs font-bold">
+                📋 Copiar progreso al portapapeles
+              </button>
+              <button onclick="importProgressPrompt()" class="px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-bold">
+                📥 Pegar / Importar progreso
+              </button>
+              <button onclick="resetAllProgress()" class="px-3.5 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 text-xs font-bold">
+                🗑️ Reiniciar FSRS a cero
+              </button>
+            </div>
+            <div id="settings-msg" class="text-xs text-emerald-400 font-bold pt-1"></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function setTargetRetention(val) {
+    appState.targetRetention = val;
+    saveState();
+    renderSettingsTab();
+  }
+
+  function toggleIncludePage3() {
+    appState.includePage3 = !appState.includePage3;
+    saveState();
+    renderSettingsTab();
+  }
+
+  function shiftTimeDays(d) {
+    appState.timeOffsetDays = (appState.timeOffsetDays || 0) + d;
+    saveState();
+    renderSettingsTab();
+  }
+
+  function resetTimeOffset() {
+    appState.timeOffsetDays = 0;
+    saveState();
+    renderSettingsTab();
+  }
+
+  function exportProgressClipboard() {
+    const str = JSON.stringify(appState);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(str).then(() => {
+        const msg = document.getElementById('settings-msg');
+        if (msg) msg.textContent = '✅ ¡Progreso FSRS copiado al portapapeles! Pégalo en tu móvil o PC.';
+      });
+    } else {
+      prompt('Copia este código de progreso FSRS:', str);
+    }
+  }
+
+  function importProgressPrompt() {
+    const raw = prompt('Pega aquí el código JSON de progreso FSRS exportado:');
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.cards) {
+        appState = { ...appState, ...parsed };
+        saveState();
+        renderSettingsTab();
+        const msg = document.getElementById('settings-msg');
+        if (msg) msg.textContent = '✅ ¡Progreso importado correctamente!';
+      }
+    } catch (e) {
+      alert('El código introducido no es un JSON válido.');
+    }
+  }
+
+  function resetAllProgress() {
+    if (!confirm('¿Seguro que quieres reiniciar a cero las estadísticas FSRS de las 49 definiciones?')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    appState.cards = {};
+    appState.confusions = {};
+    appState.streak = 0;
+    appState.timeOffsetDays = 0;
+    loadState();
+    saveState();
+    renderSettingsTab();
+  }
+
+
+  let deferredInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    const btn = document.getElementById('btn-install-pwa');
+    if (btn) btn.classList.remove('hidden');
+  });
+
+  async function installPWA() {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    const btn = document.getElementById('btn-install-pwa');
+    if (btn) btn.classList.add('hidden');
+  }
+
+  function copyAnkiButtonHtml() {
+    const snippet = '<a href="https://smetola.github.io/juego-T16.2/" style="display:inline-block;padding:14px 22px;background:#10b981;color:#0b1120;font-weight:900;border-radius:12px;text-decoration:none;">🎮 Abrir Laboratorio FSRS T16.2</a>';
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(snippet).then(() => {
+        const msg = document.getElementById('settings-msg');
+        if (msg) msg.textContent = '✅ ¡Botón HTML para Anki copiado! Pégalo en tu tarjeta de Anki.';
+      });
+    } else {
+      prompt('Copia este código HTML para tu tarjeta de Anki:', snippet);
+    }
+  }
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    loadState();
+    updateTopKPIs();
+    renderPlayHub();
+  });
+  </script>
+</body>
+</html>
